@@ -9,15 +9,15 @@
   </view> -->
   <view class="classify" style="height:{{windowHeight-50}}px">
     <scroll-view class="classify_catetory" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
-      <view class="name {{item.active? 'active':''}}"  wx:for="{{rootcateList}}" wx:key="item" bindtap="changeCate" data-code="{{item.code}}">
+      <view class="name {{item.active? 'active':''}}"  wx:for="{{rootcateList}}" wx:key="item" bindtap="changeCate" data-id="{{item.id}}">
         {{item.name}}
       </view>
     </scroll-view>
     <scroll-view class="classify_detail" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
         <view class="children">
           <navigator hover-class="none" class="children_item"  wx:for="{{childcateList}}" wx:for-item="item" wx:key="index" url="/pages/search?cateCode={{item.secondCategory.code}}&title={{item.secondCategory.name}}">
-            <image class="child_image" src="{{item.secondCategory.thumLogo}}"/>
-            <view class="child_name">{{item.secondCategory.name}}</view>
+            <image class="child_image" src="{{item.thumb_img}}" style="width:40px;height:40px;"/>
+            <view class="child_name" data-id="{{item.id}}" data-parent_id="{{item.parent_id}}">{{item.name}}</view>
           </navigator>
         </view>
     </scroll-view>

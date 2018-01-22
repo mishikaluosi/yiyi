@@ -1,1 +1,207 @@
-"use strict";function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}function _asyncToGenerator(e){return function(){var t=e.apply(this,arguments);return new Promise(function(e,r){function n(s,a){try{var i=t[s](a),o=i.value}catch(e){return void r(e)}if(!i.done)return Promise.resolve(o).then(function(e){n("next",e)},function(e){n("throw",e)});e(o)}return n("next")})}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),_wepy=require("./../npm/wepy/lib/wepy.js"),_wepy2=_interopRequireDefault(_wepy),_address_list=require("./../components/address_list.js"),_address_list2=_interopRequireDefault(_address_list),_address_add=require("./../components/address_add.js"),_address_add2=_interopRequireDefault(_address_add),_address_edit=require("./../components/address_edit.js"),_address_edit2=_interopRequireDefault(_address_edit),_api=require("./../api/api.js"),_api2=_interopRequireDefault(_api),_tip=require("./../utils/tip.js"),_tip2=_interopRequireDefault(_tip),_constant=require("./../utils/constant.js"),Address=function(e){function t(){var e,r,n,s;_classCallCheck(this,t);for(var a=arguments.length,i=Array(a),o=0;o<a;o++)i[o]=arguments[o];return r=n=_possibleConstructorReturn(this,(e=t.__proto__||Object.getPrototypeOf(t)).call.apply(e,[this].concat(i))),n.config={navigationBarTitleText:"地址管理"},n.data={addressList:[],receiverInfo:{},currentPage:0,type:""},n.$repeat={},n.$props={addressList:{"xmlns:v-bind":"","v-bind:list.sync":"addressList","xmlns:v-on":""},addressAdd:{"xmlns:v-on":""},addressEdit:{"xmlns:v-on":""}},n.$events={addressList:{"v-on:currentPage":"getCurrentPage"},addressAdd:{"v-on:currentPage":"getCurrentPage"},addressEdit:{"v-on:currentPage":"getCurrentPage"}},n.components={addressList:_address_list2.default,addressAdd:_address_add2.default,addressEdit:_address_edit2.default},n.computed={},n.methods={getCurrentPage:function(e,t){this.currentPage=e,1!=e&&0!=e&&this.receiverInf(t)}},n.events={refreshAddList:function(e){this.getUserAddress()}},s=r,_possibleConstructorReturn(n,s)}return _inherits(t,e),_createClass(t,[{key:"getUserAddress",value:function(){function e(e,r){return t.apply(this,arguments)}var t=_asyncToGenerator(regeneratorRuntime.mark(function e(t,r){var n,s,a,i;return regeneratorRuntime.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return n=this,s=_wepy2.default.getStorageSync(_constant.USER_SPECICAL_INFO)||{},a=s.openid,e.next=5,_api2.default.getUserAddress({query:{openId:a}});case 5:i=e.sent,0==i.data.code?(this.addressList=i.data.list,this.$invoke("addressList","refreshList",this.addressList)):_tip2.default.error(i.data.msg),n.showLoading=!1;case 8:case"end":return e.stop()}},e,this)}));return e}()},{key:"receiverInf",value:function(){function e(e){return t.apply(this,arguments)}var t=_asyncToGenerator(regeneratorRuntime.mark(function e(t){var r,n,s;return regeneratorRuntime.wrap(function(e){for(;;)switch(e.prev=e.next){case 0:return r=this,n=_wepy2.default.getStorageSync(_constant.USER_SPECICAL_INFO)||{},e.next=4,_api2.default.receiverInfoById({query:{id:t}});case 4:s=e.sent,0==s.data.code?(this.receiverInfo=s.data.receiverInfo,this.$invoke("addressEdit","refresh",this.receiverInfo),console.log("=================================")):_tip2.default.error(s.data.msg),r.showLoading=!1;case 7:case"end":return e.stop()}},e,this)}));return e}()},{key:"onLoad",value:function(e){this.currentPage=0,this.getUserAddress(),this.type=void 0==e.type?"":e.type,this.$invoke("addressList","setOrgType",this.type)}},{key:"onShow",value:function(){this.getUserAddress()}},{key:"onUnload",value:function(){}}]),t}(_wepy2.default.page);Page(require("./../npm/wepy/lib/wepy.js").default.$createPage(Address,"pages/address"));
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _wepy = require('./../npm/wepy/lib/wepy.js');
+
+var _wepy2 = _interopRequireDefault(_wepy);
+
+var _address_list = require('./../components/address_list.js');
+
+var _address_list2 = _interopRequireDefault(_address_list);
+
+var _address_add = require('./../components/address_add.js');
+
+var _address_add2 = _interopRequireDefault(_address_add);
+
+var _address_edit = require('./../components/address_edit.js');
+
+var _address_edit2 = _interopRequireDefault(_address_edit);
+
+var _api = require('./../api/api.js');
+
+var _api2 = _interopRequireDefault(_api);
+
+var _tip = require('./../utils/tip.js');
+
+var _tip2 = _interopRequireDefault(_tip);
+
+var _constant = require('./../utils/constant.js');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Address = function (_wepy$page) {
+  _inherits(Address, _wepy$page);
+
+  function Address() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Address);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Address.__proto__ || Object.getPrototypeOf(Address)).call.apply(_ref, [this].concat(args))), _this), _this.config = {
+      navigationBarTitleText: '地址管理'
+    }, _this.data = {
+      addressList: [],
+      receiverInfo: {},
+
+      //显示当前组件 0 列表 1新增 2编辑
+      currentPage: 0,
+      type: "" //哪个页面跳转过来的
+    }, _this.$repeat = {}, _this.$props = { "addressList": { "xmlns:v-bind": "", "v-bind:list.sync": "addressList", "xmlns:v-on": "" }, "addressAdd": { "xmlns:v-on": "" }, "addressEdit": { "xmlns:v-on": "" } }, _this.$events = { "addressList": { "v-on:currentPage": "getCurrentPage" }, "addressAdd": { "v-on:currentPage": "getCurrentPage" }, "addressEdit": { "v-on:currentPage": "getCurrentPage" } }, _this.components = {
+      addressList: _address_list2.default,
+      addressAdd: _address_add2.default,
+      addressEdit: _address_edit2.default
+    }, _this.computed = {}, _this.methods = {
+      getCurrentPage: function getCurrentPage(cur, id) {
+        this.currentPage = cur;
+        if (cur != 1 && cur != 0) {
+          this.receiverInf(id);
+        }
+      }
+    }, _this.events = {
+      refreshAddList: function refreshAddList(msg) {
+        this.getUserAddress();
+      }
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  _createClass(Address, [{
+    key: "getUserAddress",
+    value: function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(phone, code) {
+        var that, userSpecialInfo, openId, json;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                that = this;
+                userSpecialInfo = _wepy2.default.getStorageSync(_constant.USER_SPECICAL_INFO) || {};
+                openId = userSpecialInfo.openid;
+                _context.next = 5;
+                return _api2.default.getUserAddress({
+                  query: {
+                    openId: openId
+                  }
+                });
+
+              case 5:
+                json = _context.sent;
+
+
+                if (json.data.code == 0) {
+                  this.addressList = json.data.list;
+                  this.$invoke("addressList", "refreshList", this.addressList);
+                } else {
+                  _tip2.default.error(json.data.msg);
+                }
+                that.showLoading = false;
+
+              case 8:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function getUserAddress(_x, _x2) {
+        return _ref2.apply(this, arguments);
+      }
+
+      return getUserAddress;
+    }()
+  }, {
+    key: "receiverInf",
+    value: function () {
+      var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(id) {
+        var that, userSpecialInfo, json;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                that = this;
+                userSpecialInfo = _wepy2.default.getStorageSync(_constant.USER_SPECICAL_INFO) || {};
+                _context2.next = 4;
+                return _api2.default.receiverInfoById({
+                  query: {
+                    id: id
+                  }
+                });
+
+              case 4:
+                json = _context2.sent;
+
+                if (json.data.code == 0) {
+                  this.receiverInfo = json.data.receiverInfo;
+                  this.$invoke("addressEdit", "refresh", this.receiverInfo);
+                  console.log("=================================");
+                } else {
+                  _tip2.default.error(json.data.msg);
+                }
+                that.showLoading = false;
+
+              case 7:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function receiverInf(_x3) {
+        return _ref3.apply(this, arguments);
+      }
+
+      return receiverInf;
+    }()
+  }, {
+    key: "onLoad",
+    value: function onLoad(option) {
+      this.currentPage = 0;
+      this.getUserAddress();
+      this.type = option.type == undefined ? "" : option.type;
+      this.$invoke("addressList", "setOrgType", this.type);
+    }
+  }, {
+    key: "onShow",
+    value: function onShow() {
+      var that = this;
+      this.getUserAddress();
+    }
+  }, {
+    key: "onUnload",
+    value: function onUnload() {
+      // if (this.currentPage !== 0) {
+      //   wx.navigateTo({
+      //     url: "/pages/address"
+      //   })
+      // }
+    }
+  }]);
+
+  return Address;
+}(_wepy2.default.page);
+
+
+Page(require('./../npm/wepy/lib/wepy.js').default.$createPage(Address , 'pages/address'));
+
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFkZHJlc3MuanMiXSwibmFtZXMiOlsiQWRkcmVzcyIsImNvbmZpZyIsIm5hdmlnYXRpb25CYXJUaXRsZVRleHQiLCJkYXRhIiwiYWRkcmVzc0xpc3QiLCJyZWNlaXZlckluZm8iLCJjdXJyZW50UGFnZSIsInR5cGUiLCIkcmVwZWF0IiwiJHByb3BzIiwiJGV2ZW50cyIsImNvbXBvbmVudHMiLCJhZGRyZXNzQWRkIiwiYWRkcmVzc0VkaXQiLCJjb21wdXRlZCIsIm1ldGhvZHMiLCJnZXRDdXJyZW50UGFnZSIsImN1ciIsImlkIiwicmVjZWl2ZXJJbmYiLCJldmVudHMiLCJyZWZyZXNoQWRkTGlzdCIsIm1zZyIsImdldFVzZXJBZGRyZXNzIiwicGhvbmUiLCJjb2RlIiwidGhhdCIsInVzZXJTcGVjaWFsSW5mbyIsImdldFN0b3JhZ2VTeW5jIiwib3BlbklkIiwib3BlbmlkIiwicXVlcnkiLCJqc29uIiwibGlzdCIsIiRpbnZva2UiLCJlcnJvciIsInNob3dMb2FkaW5nIiwicmVjZWl2ZXJJbmZvQnlJZCIsImNvbnNvbGUiLCJsb2ciLCJvcHRpb24iLCJ1bmRlZmluZWQiLCJwYWdlIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7Ozs7Ozs7O0lBR3FCQSxPOzs7Ozs7Ozs7Ozs7Ozt3TEFDbkJDLE0sR0FBUztBQUNQQyw4QkFBd0I7QUFEakIsSyxRQUdUQyxJLEdBQU87QUFDTEMsbUJBQWEsRUFEUjtBQUVMQyxvQkFBYSxFQUZSOztBQUlMO0FBQ0FDLG1CQUFhLENBTFI7QUFNTEMsWUFBTSxFQU5ELENBTUk7QUFOSixLLFFBOENSQyxPLEdBQVUsRSxRQUNYQyxNLEdBQVMsRUFBQyxlQUFjLEVBQUMsZ0JBQWUsRUFBaEIsRUFBbUIsb0JBQW1CLGFBQXRDLEVBQW9ELGNBQWEsRUFBakUsRUFBZixFQUFvRixjQUFhLEVBQUMsY0FBYSxFQUFkLEVBQWpHLEVBQW1ILGVBQWMsRUFBQyxjQUFhLEVBQWQsRUFBakksRSxRQUNUQyxPLEdBQVUsRUFBQyxlQUFjLEVBQUMsb0JBQW1CLGdCQUFwQixFQUFmLEVBQXFELGNBQWEsRUFBQyxvQkFBbUIsZ0JBQXBCLEVBQWxFLEVBQXdHLGVBQWMsRUFBQyxvQkFBbUIsZ0JBQXBCLEVBQXRILEUsUUFDVEMsVSxHQUFhO0FBQ1ZQLHlDQURVO0FBRVZRLHVDQUZVO0FBR1ZDO0FBSFUsSyxRQWlCWkMsUSxHQUFXLEUsUUFHWEMsTyxHQUFVO0FBQ1JDLG9CQURRLDBCQUNPQyxHQURQLEVBQ1dDLEVBRFgsRUFDZTtBQUNyQixhQUFLWixXQUFMLEdBQW1CVyxHQUFuQjtBQUNBLFlBQUlBLE9BQUssQ0FBTCxJQUFRQSxPQUFLLENBQWpCLEVBQW9CO0FBQ2xCLGVBQUtFLFdBQUwsQ0FBaUJELEVBQWpCO0FBQ0Q7QUFDRjtBQU5PLEssUUFlVkUsTSxHQUFTO0FBQ0xDLG9CQURLLDBCQUNVQyxHQURWLEVBQ2M7QUFDZixhQUFLQyxjQUFMO0FBQ0g7QUFISSxLOzs7Ozs7MkZBM0VZQyxLLEVBQU1DLEk7Ozs7OztBQUNyQkMsb0IsR0FBTyxJO0FBQ1BDLCtCLEdBQWtCLGVBQUtDLGNBQUwsa0NBQTJDLEU7QUFDN0RDLHNCLEdBQVNGLGdCQUFnQkcsTTs7dUJBQ1YsY0FBSVAsY0FBSixDQUFtQjtBQUNwQ1EseUJBQU87QUFDTEYsNEJBQVFBO0FBREg7QUFENkIsaUJBQW5CLEM7OztBQUFiRyxvQjs7O0FBTU4sb0JBQUlBLEtBQUs3QixJQUFMLENBQVVzQixJQUFWLElBQWtCLENBQXRCLEVBQXlCO0FBQ3ZCLHVCQUFLckIsV0FBTCxHQUFpQjRCLEtBQUs3QixJQUFMLENBQVU4QixJQUEzQjtBQUNBLHVCQUFLQyxPQUFMLENBQWEsYUFBYixFQUEyQixhQUEzQixFQUEwQyxLQUFLOUIsV0FBL0M7QUFDRCxpQkFIRCxNQUdPO0FBQ0wsZ0NBQUkrQixLQUFKLENBQVVILEtBQUs3QixJQUFMLENBQVVtQixHQUFwQjtBQUNEO0FBQ0RJLHFCQUFLVSxXQUFMLEdBQW1CLEtBQW5COzs7Ozs7Ozs7Ozs7Ozs7Ozs7OzRGQUdnQmxCLEU7Ozs7OztBQUNaUSxvQixHQUFPLEk7QUFDUEMsK0IsR0FBa0IsZUFBS0MsY0FBTCxrQ0FBMkMsRTs7dUJBQzlDLGNBQUlTLGdCQUFKLENBQXFCO0FBQ3RDTix5QkFBTztBQUNMYix3QkFBSUE7QUFEQztBQUQrQixpQkFBckIsQzs7O0FBQWJjLG9COztBQUtOLG9CQUFJQSxLQUFLN0IsSUFBTCxDQUFVc0IsSUFBVixJQUFrQixDQUF0QixFQUF5QjtBQUN2Qix1QkFBS3BCLFlBQUwsR0FBa0IyQixLQUFLN0IsSUFBTCxDQUFVRSxZQUE1QjtBQUNBLHVCQUFLNkIsT0FBTCxDQUFhLGFBQWIsRUFBMkIsU0FBM0IsRUFBc0MsS0FBSzdCLFlBQTNDO0FBQ0FpQywwQkFBUUMsR0FBUixDQUFZLG1DQUFaO0FBQ0QsaUJBSkQsTUFJTztBQUNMLGdDQUFJSixLQUFKLENBQVVILEtBQUs3QixJQUFMLENBQVVtQixHQUFwQjtBQUNEO0FBQ0RJLHFCQUFLVSxXQUFMLEdBQW1CLEtBQW5COzs7Ozs7Ozs7Ozs7Ozs7Ozs7MkJBWUtJLE0sRUFBUTtBQUNiLFdBQUtsQyxXQUFMLEdBQW1CLENBQW5CO0FBQ0EsV0FBS2lCLGNBQUw7QUFDQSxXQUFLaEIsSUFBTCxHQUFhaUMsT0FBT2pDLElBQVAsSUFBYWtDLFNBQWIsR0FBdUIsRUFBdkIsR0FBMEJELE9BQU9qQyxJQUE5QztBQUNBLFdBQUsyQixPQUFMLENBQWEsYUFBYixFQUEyQixZQUEzQixFQUF5QyxLQUFLM0IsSUFBOUM7QUFDRDs7OzZCQUVPO0FBQ04sVUFBSW1CLE9BQU8sSUFBWDtBQUNBLFdBQUtILGNBQUw7QUFDRDs7OytCQVlVO0FBQ1Q7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNEOzs7O0VBdkZrQyxlQUFLbUIsSTs7a0JBQXJCMUMsTyIsImZpbGUiOiJhZGRyZXNzLmpzIiwic291cmNlc0NvbnRlbnQiOlsiXG5pbXBvcnQgd2VweSBmcm9tICd3ZXB5JztcbmltcG9ydCBBZGRyZXNzTGlzdCBmcm9tIFwiLi4vY29tcG9uZW50cy9hZGRyZXNzX2xpc3RcIjtcbmltcG9ydCBBZGRyZXNzQWRkIGZyb20gXCIuLi9jb21wb25lbnRzL2FkZHJlc3NfYWRkXCI7XG5pbXBvcnQgQWRkcmVzc0VkaXQgZnJvbSBcIi4uL2NvbXBvbmVudHMvYWRkcmVzc19lZGl0XCI7XG5pbXBvcnQgYXBpIGZyb20gXCIuLi9hcGkvYXBpXCI7XG5pbXBvcnQgdGlwIGZyb20gJy4uL3V0aWxzL3RpcCc7XG5pbXBvcnQge1xuICBVU0VSX1NQRUNJQ0FMX0lORk9cbn0gZnJvbSAnLi4vdXRpbHMvY29uc3RhbnQnO1xuZXhwb3J0IGRlZmF1bHQgY2xhc3MgQWRkcmVzcyBleHRlbmRzIHdlcHkucGFnZSB7XG4gIGNvbmZpZyA9IHtcbiAgICBuYXZpZ2F0aW9uQmFyVGl0bGVUZXh0OiAn5Zyw5Z2A566h55CGJyxcbiAgfVxuICBkYXRhID0ge1xuICAgIGFkZHJlc3NMaXN0OiBbXSxcbiAgICByZWNlaXZlckluZm86e30sXG5cbiAgICAvL+aYvuekuuW9k+WJjee7hOS7tiAwIOWIl+ihqCAx5paw5aKeIDLnvJbovpFcbiAgICBjdXJyZW50UGFnZTogMCxcbiAgICB0eXBlOiBcIlwiIC8v5ZOq5Liq6aG16Z2i6Lez6L2s6L+H5p2l55qEXG4gIH1cblxuICBhc3luYyBnZXRVc2VyQWRkcmVzcyhwaG9uZSxjb2RlKSB7XG4gICAgbGV0IHRoYXQgPSB0aGlzO1xuICAgIGxldCB1c2VyU3BlY2lhbEluZm8gPSB3ZXB5LmdldFN0b3JhZ2VTeW5jKFVTRVJfU1BFQ0lDQUxfSU5GTykgfHwge307XG4gICAgbGV0IG9wZW5JZCA9IHVzZXJTcGVjaWFsSW5mby5vcGVuaWQ7XG4gICAgY29uc3QganNvbiA9IGF3YWl0IGFwaS5nZXRVc2VyQWRkcmVzcyh7XG4gICAgICBxdWVyeToge1xuICAgICAgICBvcGVuSWQ6IG9wZW5JZFxuICAgICAgfVxuICAgIH0pO1xuXG4gICAgaWYgKGpzb24uZGF0YS5jb2RlID09IDApIHtcbiAgICAgIHRoaXMuYWRkcmVzc0xpc3Q9anNvbi5kYXRhLmxpc3Q7XG4gICAgICB0aGlzLiRpbnZva2UoXCJhZGRyZXNzTGlzdFwiLFwicmVmcmVzaExpc3RcIiwgdGhpcy5hZGRyZXNzTGlzdCk7XG4gICAgfSBlbHNlIHtcbiAgICAgIHRpcC5lcnJvcihqc29uLmRhdGEubXNnKVxuICAgIH1cbiAgICB0aGF0LnNob3dMb2FkaW5nID0gZmFsc2U7XG4gIH1cblxuICBhc3luYyByZWNlaXZlckluZihpZCkge1xuICAgIGxldCB0aGF0ID0gdGhpcztcbiAgICBsZXQgdXNlclNwZWNpYWxJbmZvID0gd2VweS5nZXRTdG9yYWdlU3luYyhVU0VSX1NQRUNJQ0FMX0lORk8pIHx8IHt9O1xuICAgIGNvbnN0IGpzb24gPSBhd2FpdCBhcGkucmVjZWl2ZXJJbmZvQnlJZCh7XG4gICAgICBxdWVyeToge1xuICAgICAgICBpZDogaWRcbiAgICAgIH1cbiAgICB9KTtcbiAgICBpZiAoanNvbi5kYXRhLmNvZGUgPT0gMCkge1xuICAgICAgdGhpcy5yZWNlaXZlckluZm89anNvbi5kYXRhLnJlY2VpdmVySW5mbztcbiAgICAgIHRoaXMuJGludm9rZShcImFkZHJlc3NFZGl0XCIsXCJyZWZyZXNoXCIsIHRoaXMucmVjZWl2ZXJJbmZvKTtcbiAgICAgIGNvbnNvbGUubG9nKFwiPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09XCIpXG4gICAgfSBlbHNlIHtcbiAgICAgIHRpcC5lcnJvcihqc29uLmRhdGEubXNnKVxuICAgIH1cbiAgICB0aGF0LnNob3dMb2FkaW5nID0gZmFsc2U7XG4gIH1cblxuICRyZXBlYXQgPSB7fTtcclxuJHByb3BzID0ge1wiYWRkcmVzc0xpc3RcIjp7XCJ4bWxuczp2LWJpbmRcIjpcIlwiLFwidi1iaW5kOmxpc3Quc3luY1wiOlwiYWRkcmVzc0xpc3RcIixcInhtbG5zOnYtb25cIjpcIlwifSxcImFkZHJlc3NBZGRcIjp7XCJ4bWxuczp2LW9uXCI6XCJcIn0sXCJhZGRyZXNzRWRpdFwiOntcInhtbG5zOnYtb25cIjpcIlwifX07XHJcbiRldmVudHMgPSB7XCJhZGRyZXNzTGlzdFwiOntcInYtb246Y3VycmVudFBhZ2VcIjpcImdldEN1cnJlbnRQYWdlXCJ9LFwiYWRkcmVzc0FkZFwiOntcInYtb246Y3VycmVudFBhZ2VcIjpcImdldEN1cnJlbnRQYWdlXCJ9LFwiYWRkcmVzc0VkaXRcIjp7XCJ2LW9uOmN1cnJlbnRQYWdlXCI6XCJnZXRDdXJyZW50UGFnZVwifX07XHJcbiBjb21wb25lbnRzID0ge1xuICAgIGFkZHJlc3NMaXN0OiBBZGRyZXNzTGlzdCxcbiAgICBhZGRyZXNzQWRkOiBBZGRyZXNzQWRkLFxuICAgIGFkZHJlc3NFZGl0OiBBZGRyZXNzRWRpdFxuICB9XG5cbiAgb25Mb2FkKG9wdGlvbikge1xuICAgIHRoaXMuY3VycmVudFBhZ2UgPSAwO1xuICAgIHRoaXMuZ2V0VXNlckFkZHJlc3MoKTtcbiAgICB0aGlzLnR5cGUgPSAob3B0aW9uLnR5cGU9PXVuZGVmaW5lZD9cIlwiOm9wdGlvbi50eXBlKTtcbiAgICB0aGlzLiRpbnZva2UoXCJhZGRyZXNzTGlzdFwiLFwic2V0T3JnVHlwZVwiLCB0aGlzLnR5cGUpO1xuICB9XG5cbiAgb25TaG93KCl7XG4gICAgbGV0IHRoYXQgPSB0aGlzO1xuICAgIHRoaXMuZ2V0VXNlckFkZHJlc3MoKTtcbiAgfVxuICBjb21wdXRlZCA9IHtcblxuICB9XG4gIG1ldGhvZHMgPSB7XG4gICAgZ2V0Q3VycmVudFBhZ2UoY3VyLGlkKSB7XG4gICAgICB0aGlzLmN1cnJlbnRQYWdlID0gY3VyO1xuICAgICAgaWYgKGN1ciE9MSYmY3VyIT0wKSB7XG4gICAgICAgIHRoaXMucmVjZWl2ZXJJbmYoaWQpO1xuICAgICAgfVxuICAgIH1cbiAgfVxuICBvblVubG9hZCgpIHtcbiAgICAvLyBpZiAodGhpcy5jdXJyZW50UGFnZSAhPT0gMCkge1xuICAgIC8vICAgd3gubmF2aWdhdGVUbyh7XG4gICAgLy8gICAgIHVybDogXCIvcGFnZXMvYWRkcmVzc1wiXG4gICAgLy8gICB9KVxuICAgIC8vIH1cbiAgfVxuICBldmVudHMgPSB7XG4gICAgICByZWZyZXNoQWRkTGlzdChtc2cpe1xuICAgICAgICAgIHRoaXMuZ2V0VXNlckFkZHJlc3MoKTtcbiAgICAgIH1cbiAgfVxuXG59XG5cbiJdfQ==

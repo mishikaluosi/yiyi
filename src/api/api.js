@@ -1,10 +1,11 @@
 import {
-  wxRequest
+    wxRequest
 } from '../utils/wxRequest';
 
 let env = "-test" //-dev 或者 -test
-const apiMall = 'https://sujiefs.com/'
-//const apiMall = 'https://api.tangxinmao.com'
+    //const apiMall = 'https://sujiefs.com/'
+    //const apiMall = 'https://api.tangxinmao.com'
+const apiMall = 'http://47.100.162.185/api/yiyi'
 
 /**
  * 获取发现好商品接口
@@ -136,46 +137,63 @@ const refundApply = (params) => wxRequest(params, apiMall + '/api/mall/refund/sa
 
 //商品分类--begin
 //一级分类
-const rootCtegoryList = (params) => wxRequest(params, apiMall + '/api/mall/rootCtegoryList');
-//二级三级分类
-const childGoodsCatetoryList = (params) => wxRequest(params, apiMall + '/api/mall/childGoodsCatetoryList');
+const rootCtegoryList = (params) => wxRequest(params, apiMall + '/category/parent');
+//二级分类
+const childGoodsCatetoryList = (params) => wxRequest(params, apiMall + '/category/son');
 //商品分类--end
 
 //查询广告列表
 const getAdList = (params) => wxRequest(params, apiMall + '/api/adverts/list');
 
 module.exports = {
-  hostGoodsList,
-  getDiscoverList, getHomeDisvocerList,
-  getGoodsList,
-  goodsDetail,
-  wxJsCode2Session,
-  user2session,
-  userSginInfo,
-  doSign,
-  addCart, cartList, cartCheck, cartCheckAll, cartDel, cartUpdateNum,
-  preOrder,refundApply,
-  pointInfo,
-  browseInfo,addBrowser,delUserBrowser,
-  favoriteInfo,
-  messageInfo,
-  registerUser,sendRandCode,
-  getUserInfo,
-  getUserAddress,
-  saveAddress,
-  receiverInfoById,
-  getUserAddress,
-  addSearchKeyword, searchKeywordList, clearSearchKeyword,
-  getMyOrderList, saveByCart,toPay,
-  rootCtegoryList, childGoodsCatetoryList,
-  getOrderInfo,
-  editOrderInfo, goodsUserOrderList,
-  orderExpressInfo,
-  delUserAddress,
-  goodsFavorite,
-  goodsUnFavorite,
-  goodsIsFavorite,
-  getMyOrderSize,getPayOrderDetail,
-  getAdList,
-  getSignDate
+    hostGoodsList,
+    getDiscoverList,
+    getHomeDisvocerList,
+    getGoodsList,
+    goodsDetail,
+    wxJsCode2Session,
+    user2session,
+    userSginInfo,
+    doSign,
+    addCart,
+    cartList,
+    cartCheck,
+    cartCheckAll,
+    cartDel,
+    cartUpdateNum,
+    preOrder,
+    refundApply,
+    pointInfo,
+    browseInfo,
+    addBrowser,
+    delUserBrowser,
+    favoriteInfo,
+    messageInfo,
+    registerUser,
+    sendRandCode,
+    getUserInfo,
+    getUserAddress,
+    saveAddress,
+    receiverInfoById,
+    getUserAddress,
+    addSearchKeyword,
+    searchKeywordList,
+    clearSearchKeyword,
+    getMyOrderList,
+    saveByCart,
+    toPay,
+    rootCtegoryList,
+    childGoodsCatetoryList,
+    getOrderInfo,
+    editOrderInfo,
+    goodsUserOrderList,
+    orderExpressInfo,
+    delUserAddress,
+    goodsFavorite,
+    goodsUnFavorite,
+    goodsIsFavorite,
+    getMyOrderSize,
+    getPayOrderDetail,
+    getAdList,
+    getSignDate
 }

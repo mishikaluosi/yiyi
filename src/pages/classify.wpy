@@ -9,15 +9,15 @@
   </view> -->
   <view class="classify" style="height:{{windowHeight-50}}px">
     <scroll-view class="classify_catetory" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
-      <view class="name {{item.active? 'active':''}}" wx:for="{{rootcateList}}" wx:key="item" @tap="changeCate" data-code="{{item.code}}">
+      <view class="name {{item.active? 'active':''}}" wx:for="{{rootcateList}}" wx:key="item" @tap="changeCate" data-id="{{item.id}}">
         {{item.name}}
       </view>
     </scroll-view>
     <scroll-view class="classify_detail" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
         <view class="children">
           <navigator hover-class="none" class="children_item" wx:for="{{childcateList}}" wx:for-item="item" wx:key="index" url="/pages/search?cateCode={{item.secondCategory.code}}&title={{item.secondCategory.name}}">
-            <image class="child_image" src="{{item.secondCategory.thumLogo}}" />
-            <view class="child_name">{{item.secondCategory.name}}</view>
+            <image class="child_image" src="{{item.thumb_img}}" style="width:40px;height:40px;"/>
+            <view class="child_name" data-id={{item.id}} data-parent_id={{item.parent_id}}>{{item.name}}</view>
           </navigator>
         </view>
     </scroll-view>
@@ -52,34 +52,38 @@ export default class Classify extends wepy.page {
   }
 
   async getChildCate(rootCateCode) {
+    //根据父类id获取子分类
     const json = await api.childGoodsCatetoryList({
       query: {
-        rootCategoryCode: rootCateCode
+        parentCategoryID: rootCateCode
       }
     });
     if (json.data.code == 0) {
-      this.childcateList = json.data.list;
+      this.childcateList = json.data.data;
     } else {
-      tip.error(json.data.msg);
+      tip.error(json.data.error);
     }
     this.$apply();
   }
 
+//异步获取顶级分类
   async getRootCateTopLevel() {
     const json = await api.rootCtegoryList({
       query: {}
     });
     if (json.data.code == 0) {
-      this.rootcateList = json.data.list;
+      this.rootcateList = json.data.data;
       if (this.rootcateList.length > 0) {
         let selCode = wx.getStorageSync(SEL_CLASS_CODE);
-        var selRottCateCode = this.rootcateList[0].code;
+        var selRottCateCode = this.rootcateList[0].id;    // cateID  
+        //没有selCode,默认为第一个分类选中
         if (selCode.length==0) {
-          this.rootcateList[0].active = true;
+          this.rootcateList[0].active = true;     //active属性为当前选中的哪个
         } else {
           for (var i = 0; i < this.rootcateList.length; i++) {
-            if (selCode == this.rootcateList[i].code) {
-              selRottCateCode = this.rootcateList[i].code;
+            if (selCode == this.rootcateList[i].id) {
+              //如果id=selCode,则选中该分类
+              selRottCateCode = this.rootcateList[i].id;
               this.rootcateList[i].active = true;
             }
           }
@@ -88,7 +92,7 @@ export default class Classify extends wepy.page {
         this.getChildCate(selRottCateCode);
       }
     } else {
-      tip.error(json.data.msg);
+      tip.error(json.data.error);
     }
     this.$apply();
   }
@@ -110,9 +114,10 @@ export default class Classify extends wepy.page {
 
   }
   methods = {
+    //改变分类 此处有问题,获取不到父类id
     changeCate(e) {
-      console.log("changecate....");
-      let code = e.currentTarget.dataset.code;
+      console.log(e);
+      let code = e.currentTarget.dataset.id;
       this.getChildCate(code);
       wepy.setStorageSync(SEL_CLASS_CODE, code);
       //设置一级分类的选中状态
@@ -209,6 +214,7 @@ export default class Classify extends wepy.page {
       width: 170rpx;
       text-align: center;
     }
+  
   }
 }
 

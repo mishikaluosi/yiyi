@@ -1,12 +1,4 @@
 <template>
-  <!-- <view class="top_search">
-    <view class="search_read_only">
-      <navigator class="search_content" url="/pages/search">
-        <i class="iconfont icon-search"></i>
-        <view class="search_input">搜索商品</view>
-      </navigator>
-    </view>
-  </view> -->
   <view class="classify" style="height:{{windowHeight-50}}px">
     <scroll-view class="classify_catetory" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
       <view class="name {{item.active? 'active':''}}" wx:for="{{rootcateList}}" wx:key="item" @tap="changeCate" data-id="{{item.id}}">
@@ -74,11 +66,11 @@ export default class Classify extends wepy.page {
     if (json.data.code == 0) {
       this.rootcateList = json.data.data;
       if (this.rootcateList.length > 0) {
-        let selCode = wx.getStorageSync(SEL_CLASS_CODE);
-        var selRottCateCode = this.rootcateList[0].id;    // cateID  
+        let selCode = wx.getStorageSync(SEL_CLASS_CODE);  //高亮的cateid
+        var selRottCateCode = this.rootcateList[0].id;    // cateID
         //没有selCode,默认为第一个分类选中
         if (selCode.length==0) {
-          this.rootcateList[0].active = true;     //active属性为当前选中的哪个
+          this.rootcateList[0].active = true;     //active属性为当前选中的哪个(默认为第一个)
         } else {
           for (var i = 0; i < this.rootcateList.length; i++) {
             if (selCode == this.rootcateList[i].id) {
@@ -103,7 +95,6 @@ export default class Classify extends wepy.page {
     let systemInfo = wx.getStorageSync(SYSTEM_INFO);
     this.windowHeight = systemInfo.windowHeight;
     this.$apply();
-    console.log(aa)
   }
 
   onShow() {
@@ -114,17 +105,15 @@ export default class Classify extends wepy.page {
 
   }
   methods = {
-    //改变分类 此处有问题,获取不到父类id
     changeCate(e) {
-      console.log(e);
-      let code = e.currentTarget.dataset.id;
-      this.getChildCate(code);
-      wepy.setStorageSync(SEL_CLASS_CODE, code);
+      let pid = e.currentTarget.dataset.id;   //获取当前行中 data-id属性的值
+      this.getChildCate(pid);
+      wepy.setStorageSync(SEL_CLASS_CODE, pid);
       //设置一级分类的选中状态
       for (var i = 0; i < this.rootcateList.length; i++) {
         var rootCate = this.rootcateList[i];
         rootCate.active = false;
-        if (rootCate.code == code) {
+        if (rootCate.id == pid) {
           rootCate.active = true;
         }
       }

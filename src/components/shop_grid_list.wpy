@@ -4,14 +4,14 @@
     <view class="shop_item">
       <navigator class="list" wx:for="{{list}}" wx:key="item" url="/pages/goods_detail?id={{item.id}}&purchasetype={{purchasetype}}&special={{special}}">
         <view class="image_box">
-          <image src="{{item.thumLogo}}"></image>
+          <image src="{{item.product_img}}"></image>
         </view>
         <view class="goods">
-          <view class="product_name" wx:if="{{showTitle}}">{{item.name}}</view>
+          <view class="product_name">{{item.name}}</view>
           <view class="product_info">
             <view class="price">￥{{item.price}}</view>
-            <view class="cost_price">￥{{item.marketPrice}}</view>
-            <view class="sale_num">销量{{item.saleCount}}件</view>
+            <view class="original_price">￥{{item.original_price}}</view>
+            <!-- <view class="sale_num">销量{{item.saleCount}}件</view> -->
           </view>
         </view>
       </navigator>
@@ -86,7 +86,7 @@ export default class ShopGridList extends wepy.component {
     font-size: 35rpx;
     font-weight: 600;
   }
-  .cost_price {
+  .original_price {
     color: #666666;
     font-size: 24rpx;
     text-decoration: line-through;
@@ -104,7 +104,7 @@ export default class ShopGridList extends wepy.component {
     display: flex;
     align-items: flex-end;
   }
-  .cost_price {
+  .original_price {
     padding-left: 20rpx;
   }
   .sale_num {

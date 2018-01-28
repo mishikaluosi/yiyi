@@ -7,9 +7,9 @@
     </scroll-view>
     <scroll-view class="classify_detail" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
         <view class="children">
-          <navigator hover-class="none" class="children_item" wx:for="{{childcateList}}" wx:for-item="item" wx:key="index" url="/pages/search?cateCode={{item.secondCategory.code}}&title={{item.secondCategory.name}}">
+          <navigator hover-class="none" class="children_item" wx:for="{{childcateList}}" wx:for-item="item" wx:key="index" url="/pages/search?cid={{item.id}}&cname={{item.name}}">
             <image class="child_image" src="{{item.thumb_img}}" style="width:40px;height:40px;"/>
-            <view class="child_name" data-id={{item.id}} data-parent_id={{item.parent_id}}>{{item.name}}</view>
+            <view class="child_name" data-id="{{item.id}}" data-parent_id="{{item.parent_id}}">{{item.name}}</view>
           </navigator>
         </view>
     </scroll-view>
@@ -39,8 +39,8 @@ export default class Classify extends wepy.page {
     list: {},
     //一级分类数据
     rootcateList: {},
-    //二级三级分类数据
-    childcateList: {}
+    //二级分类数据
+    childcateList: {},
   }
 
   async getChildCate(rootCateCode) {
@@ -91,7 +91,6 @@ export default class Classify extends wepy.page {
 
   onLoad() {
     let that = this;
-    //this.list = aa.data;
     let systemInfo = wx.getStorageSync(SYSTEM_INFO);
     this.windowHeight = systemInfo.windowHeight;
     this.$apply();
@@ -121,7 +120,6 @@ export default class Classify extends wepy.page {
     onShareAppMessage: function (res) {
       if (res.from === 'button') {
         // 来自页面内转发按钮
-        console.log(res.target)
       }
       return {
         title: this.detail.name,

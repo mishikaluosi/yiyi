@@ -1,7 +1,7 @@
 <template>
   <view class="container">
-    <search @searchValue.user="doSearch"></search>
-    <filterBar wx:if="{{list.length>0||skuval !==''}}" @currentType.user="currentType"></filterBar>
+    <!-- <search @searchValue.user="doSearch"></search>
+    <filterBar wx:if="{{list.length>0||skuval !==''}}" @currentType.user="currentType"></filterBar> -->
     <view wx:if="{{list.length>0}}">
       <!--矩阵商品列表模块-->
       <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
@@ -63,10 +63,10 @@
       page_total: 0,
       keyword: "",
       keywordhisList: [],
-      cateCode: "",
+      cid: "",
       show: true,
       sort: -1,
-      title: "",
+      cname: "",
       skuval: ""
     }
     async getKeyWordHisList() {
@@ -90,54 +90,60 @@
     onLoad(option) {
       this.list = [];
       this.skuval = "";
-      this.cateCode = option.cateCode;
-      if (this.cateCode != undefined && this.cateCode.length > 0) { //分类进入
+      this.cid = option.cid;  //获取分类id
+      if (this.cid != undefined) { 
+        //分类进入(商品列表页)
         this.$invoke('search', 'show', "0");
         this.show = false;
-        this.doSearchGoods(this.cateCode);
-        this.title = "" + option.title;
-        this.setTitle("" + option.title);
-      } else { //搜索进入
+        this.doSearchGoods(this.cid);
+        this.cname = "" + option.cname;
+        this.setTitle("" + this.cname);
+      } else { 
+        //搜索进入(搜索页面)
         this.$invoke('search', 'show', "1");
         this.show = true;
         this.getKeyWordHisList();
       }
     }
     computed = {}
+    //获取商品列表数据
     async doSearchGoods(keyword, currentPage, size) {
       let that = this;
       const json = await api.getGoodsList({
         query: {
           page: currentPage || 1,
           size: size || 10,
-          searchKeyWords: this.keyword,
-          cateCode: this.cateCode || "",
-          sort: this.sort,
-          skuval: this.skuval
+          //searchKeyWords: this.keyword,
+          categoryID: this.cid || 0,
+          //sort: this.sort,
+          //skuval: this.skuval
         }
       });
       if (json.data.code == 0) {
-        that.list = [...that.list, ...json.data.list];
-        that.page_total = json.data.page_total;
-        if (json.data.page_total == 0) {
-          //暂无数据
-          that.is_empty = true;
-        }
+        //that.list = [...that.list,json.data.data];
+        that.list=json.data.data.product;
+        that.page_total = json.data.data.page_total;
+
       } else {
-        tip.error(json.data.msg);
+        that.is_empty = true;
+        tip.error(json.data.error);
+        wx.redirectTo({
+          url: '/pages/classify'
+        })
+        //return false;
       }
       that.showLoading = false;
       that.$apply();
-      if (keyword.length > 0) {
-        let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-        let openId = userSpecialInfo.openid;
-        const resultJson = await api.addSearchKeyword({
-          query: {
-            openId: openId,
-            keyword: keyword
-          }
-        });
-      }
+      // if (keyword.length > 0) {
+      //   let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+      //   let openId = userSpecialInfo.openid;
+      //   const resultJson = await api.addSearchKeyword({
+      //     query: {
+      //       openId: openId,
+      //       keyword: keyword
+      //     }
+      //   });
+      // }
     }
     async clearUserKeywords() {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};

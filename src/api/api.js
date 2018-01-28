@@ -3,8 +3,7 @@ import {
 } from '../utils/wxRequest';
 
 let env = "-test" //-dev 或者 -test
-    //const apiMall = 'https://sujiefs.com/'
-    //const apiMall = 'https://api.tangxinmao.com'
+
 const apiMall = 'http://47.100.162.185/api/yiyi'
 
 /**
@@ -23,7 +22,7 @@ const user2session = (params) => wxRequest(params, apiMall + "/api/wechat/user2s
 const hostGoodsList = (params) => wxRequest(params, apiMall + '/api/home/hostGoodsList');
 const getHomeDisvocerList = (params) => wxRequest(params, apiMall + '/api/mall/discoverList');
 //查询商品列表
-const getGoodsList = (params) => wxRequest(params, apiMall + '/api/mall/searchGoodsList');
+const getGoodsList = (params) => wxRequest(params, apiMall + '/product/list');
 
 //查询商品详情信息
 const goodsDetail = (params) => wxRequest(params, apiMall + '/api/mall/goods');

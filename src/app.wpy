@@ -27,7 +27,7 @@ export default class extends wepy.app {
       'pages/classify',
       'pages/shop_cart',
       'pages/info',
-      //'pages/search',
+      'pages/search',
       'pages/test',
       'pages/sign_in',
       'pages/exchange_goods',
@@ -99,6 +99,7 @@ export default class extends wepy.app {
     userInfo: null,
     appid: 'wx6b121941b200ea50',
     secret: '36a76b0682bd2c3f1541fd012fac66f5',
+    apiUrl: 'http://47.100.162.185/api/yiyi'
   }
 
   constructor() {

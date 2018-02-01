@@ -24,3 +24,9 @@
 ### 小程序开发文档
 	http://mp.weixin.qq.com/debug/wxadoc/dev/
 
+
+
+
+## 备忘
+后台的缩略图分表率太低,应当加大	
+

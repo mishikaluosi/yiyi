@@ -2,10 +2,11 @@
   <view style="height:{{winHeight}}rpx;overflow:hidden">
     <import src="../plugins/wxParse/wxParse.wxml" />
     <!--index.wxml-->
-    <swiper indicator-dots="true" autoplay="true" interval="5000" duration="500" indicator-active-color="#ffc452" indicator-color="#efefef" class="swiper">
-      <block wx:for="{{detail.photoList}}" key="item" item="item" wx:key="key">
+    <!-- 显示轮播图 -->
+    <swiper indicator-dots="true" autoplay="false" interval="5000" duration="500" indicator-active-color="#ffc452" indicator-color="#efefef" class="swiper">
+      <block wx:for="{{detail.imgs}}" key="item" item="item" wx:key="key">
         <swiper-item>
-          <image src="{{item.photo}}" data-src="{{item.photo}}" class="slide-image" @tap="previewImage" />
+          <image src="{{item.thumb_img}}" data-src="{{item.img}}" class="slide-image" @tap="previewImage" />
         </swiper-item>
       </block>
     </swiper>
@@ -16,16 +17,16 @@
         <!--         <view class="order_time {{purchasetype==2||special==1?'hidden':''}}">
           <timer :startTime.sync="startTime" :endTime.sync="endTime"></timer>
         </view> -->
-        <view class="other-price">批发价:280</view>
-        <view class="other-price">分享价:280</view>
-        <view class="share-box">
+        <view class="original-price">原价:{{detail.original_price}}</view>
+        <view class="product-id">商品编号:{{detail.id}}</view>
+        <!-- <view class="share-box">
           <i class="iconfont icon-share"></i>
           <text>分享</text>
-        </view>
+        </view> -->
       </view>
-      <view class="baoyou">满{{detail.freeShipNum}}件包邮</view>
+      <!-- <view class="baoyou">满{{detail.freeShipNum}}件包邮</view> -->
     </view>
-    <view class="order_num">
+    <!-- <view class="order_num">
       <view class="doc" wx:if="{{special == 1}}">库存:
         <text class="num">{{detail.stockNum}}件</text>
       </view>
@@ -35,9 +36,9 @@
       <view class="doc">订单中:
         <text class="num">已拼{{detail.saleCount}}件</text>
       </view>
-    </view>
-    <view class="block">
-      <!--       <view class="block_title">拼货流程</view>
+    </view> -->
+    <!-- <view class="block">
+            <view class="block_title">拼货流程</view>
       <view class="block_content">
         <view class="process">
           新款展示
@@ -49,15 +50,15 @@
         <view class="doc">
           如若出现特殊情况外，发货时间则会延迟5-10天左右。
         </view>
-      </view> -->
+      </view>
       <view class="block_title">商品评价(20)</view>
       <view class="block_content">
         <commentList :list.sync="commentList"></commentList>
         <view class="button-more-cmment" wx:if="{{commentList.length!==0}}" @tap="moreComment">查看更多评论</view>
       </view>
-    </view>
+    </view> -->
     <view class="spacing"></view>
-    <view class="block">
+    <!-- <view class="block">
       <view class="block_title">拼单说明</view>
       <view class="block_content">
         <view class="doc">
@@ -79,36 +80,36 @@
     <view class="spacing"></view>
     <view class="block">
       <view class="block_title">商品详情</view>
-    </view>
-    <view class="big_images">
+    </view> -->
+    <!-- <view class="big_images">
       <view class="doc">
         <view class="wxParse-p">
           <template is="wxParse" data="{{wxParseData:detailInfo.nodes}}">
           </template>
         </view>
       </view>
-    </view>
+    </view> -->
     <view class="detail-bottom">
       <view class="bottom-box">
-        <view class="item"  @tap="homePage">
+        <!-- <view class="item"  @tap="homePage">
           <i class="iconfont icon-home"></i>
           <view class="doc">首页</view>
-        </view>
+        </view> -->
         <!-- <contact-button class="contact"> -->
-        <contact-button class="contact">
-        </contact-button>
-        <view class="item">
+        <!-- <contact-button class="contact">
+        </contact-button> -->
+        <!-- <view class="item">
           <i class="iconfont icon-message"></i>
           <view class="doc">客服</view>
-        </view>
-        <contact-button class="contact">
-        </contact-button>
-        <view class="item {{isFavorite?'selec_active':''}}" @tap="takeFavorite">
+        </view> -->
+        <!-- <contact-button class="contact">
+        </contact-button> -->
+        <!-- <view class="item {{isFavorite?'selec_active':''}}" @tap="takeFavorite">
           <i class="iconfont icon-collection"></i>
           <view class="doc">收藏</view>
-        </view>
+        </view> -->
         <view class="sy-bottom {{canOrder?'btn_cart':'cart_color'}}" @tap="takeCart">加入购物车</view>
-        <view class="sy-bottom {{canOrder?'btn_order':'order_color'}}" @tap="takeOrder">{{purchaseText}}</view>
+        <!-- <view class="sy-bottom {{canOrder?'btn_order':'order_color'}}" @tap="takeOrder">{{purchaseText}}</view> -->
       </view>
     </view>
     <view class="over_model {{hidden?'hidden':''}}"></view>
@@ -163,7 +164,7 @@ export default class goodsDetail extends wepy.page {
   data = {
     winWidth: 0,
     winHeight: '100%',
-    goodsId: 0,
+    goodsId: 0,     //商品id
     detail: {},
     good_bigimg: [],
     //订单活动开始时间（格式yy-mm-dd 或者 yy/mm/dd ）
@@ -186,29 +187,29 @@ export default class goodsDetail extends wepy.page {
     purchasetype: 1, //1-正常购买;2-补货
     purchaseText: "立即购买",
     special: 0, ////0-正常入库;1-特价专区和换货专区,
-    commentList: [
+    // commentList: [
 
-      {
-        url: "../images/icon_nav_01_new.png",
-        name: "浪子天涯",
-        time: "2017-10-01 10:10",
-        content: "东西收到,很满意!!真的是超级好的卖家,解答疑问不厌其烦,细致认真,关键是东西好,而且货物发得超快,包装仔细,值得信赖!",
-        start: 4.5,
-        children: [{
-          content: "跟你交易次次都这么成功和开心的．．希望我们以后有更多的交易吧．．．哈哈"
-        }]
-      },
-      {
-        url: "../images/icon_nav_02_new.png",
-        name: "勇闯天下",
-        time: "2017-10-01 10:10",
-        content: "太感谢了，衣服很漂亮，朋友很喜欢，最主要的是买家太好了~~~大大的赞一个。。。 衣服，很合身",
-        start: 4,
-        children: []
-      }
+    //   {
+    //     url: "../images/icon_nav_01_new.png",
+    //     name: "浪子天涯",
+    //     time: "2017-10-01 10:10",
+    //     content: "东西收到,很满意!!真的是超级好的卖家,解答疑问不厌其烦,细致认真,关键是东西好,而且货物发得超快,包装仔细,值得信赖!",
+    //     start: 4.5,
+    //     children: [{
+    //       content: "跟你交易次次都这么成功和开心的．．希望我们以后有更多的交易吧．．．哈哈"
+    //     }]
+    //   },
+    //   {
+    //     url: "../images/icon_nav_02_new.png",
+    //     name: "勇闯天下",
+    //     time: "2017-10-01 10:10",
+    //     content: "太感谢了，衣服很漂亮，朋友很喜欢，最主要的是买家太好了~~~大大的赞一个。。。 衣服，很合身",
+    //     start: 4,
+    //     children: []
+    //   }
 
 
-    ],
+    // ],
     commentList1: [],
   }
 
@@ -227,7 +228,8 @@ export default class goodsDetail extends wepy.page {
     that.detail = {};
     that.$apply();
     //接收上一个页面传过来的参数
-    that.goodsId = option.id;
+    that.goodsId = option.product_id;
+    console.log('商品id为'+that.goodsId);
     if (option.purchasetype != undefined) {
       this.purchasetype = option.purchasetype;
     }
@@ -281,27 +283,30 @@ export default class goodsDetail extends wepy.page {
     //const json = await api.getGoodsDetail({
     const json = await api.goodsDetail({
       query: {
-        id: that.goodsId
+        productID: that.goodsId
       }
     });
     let time = {};
     if (json.data.code == 0) {
       let data = json.data.data;
       that.detail = data;
-      WxParse.wxParse('detailInfo', 'html', that.detail.detailInfo, this);
+      console.log(that.detail)
+      //WxParse.wxParse('detailInfo', 'html', that.detail.detailInfo, this);  解析html
       time.endTime = that.detail.validEndTime;
       time.startTime = that.detail.startTime;
       /*time.startTime ="2017-07-15 16:00:00";
       time.endTime = "2017-07-21 16:04:00";*/
+      /*
       if (json.data.validDate == "0") {
         that.isValidDate = false;
         if (this.purchasetype == 1 && this.special != 1) {
           this.canOrder = false;
         }
       }
+      */
     } else {
-      if (json.data.msg) {
-        tip.error(json.data.msg)
+      if (json.data.error) {
+        tip.error(json.data.error)
       } else {
         tip.error('查看商品失败')
       }
@@ -474,25 +479,27 @@ export default class goodsDetail extends wepy.page {
   }
   methods = {
     // issus : https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui-navigate.html#wxrelaunchobject
-    homePage() {
-      wepy.switchTab({
-        url: '/pages/home'
-      })
+    // homePage() {
+    //   wepy.switchTab({
+    //     url: '/pages/home'
+    //   })
       // wx.switchTab({
       //   url: '/pages/home'
       // })
       // console.log(wepy)
       // console.log(wx)
-    },
-    moreComment() {
-      wepy.navigateTo({
-        url: "/pages/comment"
-      })
-    },
+    //},
+    // moreComment() {
+    //   wepy.navigateTo({
+    //     url: "/pages/comment"
+    //   })
+    // },
+    
+    //点击显示高清图片
     previewImage(e) {
       let current = e.target.dataset.src;
       let imageArry = [];
-      let obj = this.detail.photoList;
+      let obj = this.detail.img;
       Object.keys(obj).forEach((item) => {
         imageArry.push(obj[item].photo)
       });
@@ -652,9 +659,13 @@ export default class goodsDetail extends wepy.page {
       color: #f73c3c;
       font-size: 45rpx;
     }
-    .other-price {
+    .original-price {
       font-size: 28rpx;
-      padding-left: 40rpx
+      padding-left: 40rpx;
+      text-decoration:line-through;
+    }
+    .product-id {
+      padding-left:40rpx;
     }
     .share-box {
       text-align: center;
@@ -767,9 +778,11 @@ export default class goodsDetail extends wepy.page {
   }
   .sy-bottom {
     padding: 15rpx 40rpx;
+    width:100%;
     height: 60rpx;
     line-height: 60rpx;
-    font-size: 30rpx;
+    font-size: 40rpx;
+    text-align:center;
   }
   .btn_order {
     background: #ff4856;

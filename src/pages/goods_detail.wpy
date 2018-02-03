@@ -4,9 +4,9 @@
     <!--index.wxml-->
     <!-- 显示轮播图 -->
     <swiper indicator-dots="true" autoplay="false" interval="5000" duration="500" indicator-active-color="#ffc452" indicator-color="#efefef" class="swiper">
-      <block wx:for="{{detail.imgs}}" key="item" item="item" wx:key="key">
+      <block wx:for="{{detail.imgs}}" item="item" wx:key="key" wx:for-index="i">
         <swiper-item>
-          <image src="{{item.thumb_img}}" data-src="{{item.img}}" class="slide-image" @tap="previewImage" />
+          <image src="{{item.thumb_img}}" data-src="{{item.img}}" data-from="{{i}}" class="slide-image" @tap="previewImage" />
         </swiper-item>
       </block>
     </swiper>
@@ -14,102 +14,15 @@
       <view class="details-title">{{detail.name}}</view>
       <view class="details_pinfo">
         <text class="price">￥{{detail.price}}</text>
-        <!--         <view class="order_time {{purchasetype==2||special==1?'hidden':''}}">
-          <timer :startTime.sync="startTime" :endTime.sync="endTime"></timer>
-        </view> -->
         <view class="original-price">原价:{{detail.original_price}}</view>
         <view class="product-id">商品编号:{{detail.id}}</view>
-        <!-- <view class="share-box">
-          <i class="iconfont icon-share"></i>
-          <text>分享</text>
-        </view> -->
-      </view>
-      <!-- <view class="baoyou">满{{detail.freeShipNum}}件包邮</view> -->
-    </view>
-    <!-- <view class="order_num">
-      <view class="doc" wx:if="{{special == 1}}">库存:
-        <text class="num">{{detail.stockNum}}件</text>
-      </view>
-      <view class="doc" wx:else>规定单数:
-        <text class="num">{{detail.minBuyNum}}件成团</text>
-      </view>
-      <view class="doc">订单中:
-        <text class="num">已拼{{detail.saleCount}}件</text>
-      </view>
-    </view> -->
-    <!-- <view class="block">
-            <view class="block_title">拼货流程</view>
-      <view class="block_content">
-        <view class="process">
-          新款展示
-          <i class="iconfont icon-next"></i> 拼单结束
-          <i class="iconfont icon-next"></i> 生产商品
-          <i class="iconfont icon-next"></i> 商品检验
-          <i class="iconfont icon-next"></i> 商品发货
-        </view>
-        <view class="doc">
-          如若出现特殊情况外，发货时间则会延迟5-10天左右。
-        </view>
-      </view>
-      <view class="block_title">商品评价(20)</view>
-      <view class="block_content">
-        <commentList :list.sync="commentList"></commentList>
-        <view class="button-more-cmment" wx:if="{{commentList.length!==0}}" @tap="moreComment">查看更多评论</view>
-      </view>
-    </view> -->
-    <view class="spacing"></view>
-    <!-- <view class="block">
-      <view class="block_title">拼单说明</view>
-      <view class="block_content">
-        <view class="doc">
-          此商品在拼单期间可接收订单，如若超过拼单时间则不能下单；拼单结束后未付款订单系统将会自动取消，所以，亲下单以后请尽快付款。我们会以实际订单为准为您发货，如超过订单时间而又没有拼购到规定数量的，我们将会第一时间为您退款，请您放心购买!
-        </view>
       </view>
     </view>
+    
     <view class="spacing"></view>
-    <view class="block">
-      <view class="block_title">商品信息</view>
-      <view class="block_content">
-        <view class="table">
-          <view class="th" wx:for="{{detail.attrList}}" key="item" item="item" wx:key="key">
-            <view class="tr1" wx:for="{{item}}" key="item" item="item" wx:key="key">{{item.attrName}}:{{item.attrVal}}</view>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view class="spacing"></view>
-    <view class="block">
-      <view class="block_title">商品详情</view>
-    </view> -->
-    <!-- <view class="big_images">
-      <view class="doc">
-        <view class="wxParse-p">
-          <template is="wxParse" data="{{wxParseData:detailInfo.nodes}}">
-          </template>
-        </view>
-      </view>
-    </view> -->
     <view class="detail-bottom">
       <view class="bottom-box">
-        <!-- <view class="item"  @tap="homePage">
-          <i class="iconfont icon-home"></i>
-          <view class="doc">首页</view>
-        </view> -->
-        <!-- <contact-button class="contact"> -->
-        <!-- <contact-button class="contact">
-        </contact-button> -->
-        <!-- <view class="item">
-          <i class="iconfont icon-message"></i>
-          <view class="doc">客服</view>
-        </view> -->
-        <!-- <contact-button class="contact">
-        </contact-button> -->
-        <!-- <view class="item {{isFavorite?'selec_active':''}}" @tap="takeFavorite">
-          <i class="iconfont icon-collection"></i>
-          <view class="doc">收藏</view>
-        </view> -->
         <view class="sy-bottom {{canOrder?'btn_cart':'cart_color'}}" @tap="takeCart">加入购物车</view>
-        <!-- <view class="sy-bottom {{canOrder?'btn_order':'order_color'}}" @tap="takeOrder">{{purchaseText}}</view> -->
       </view>
     </view>
     <view class="over_model {{hidden?'hidden':''}}"></view>
@@ -117,7 +30,7 @@
       <view class="model_content">
         <view class="head_box">
           <view class="img_wrap">
-            <image class="goods_img" src="{{detail.logo}}" />
+            <image class="goods_img" src="{{detail.imgs[0]['thumb_img']}}" />
           </view>
           <view class="product_wrap">
             <view class="product_name">{{detail.name}}</view>
@@ -125,19 +38,25 @@
           </view>
         </view>
         <scroll-view scroll-y="true" style="height:400rpx">
-          <view class="rule_box" wx:for="{{detail.goodsSkuNameList}}" item="item" wx:key="key" wx:for-index="ex">
-            <view class="title">{{item.skuName}}</view>
-            <view class="items">
-              <view class="item {{item.current?'active':''}}" wx:for="{{item.skuValList}}" item="item" wx:key="key" @tap.stop="selAttr" data-id="{{item.skuValId}}" data-nameid="{{item.skuNameId}}" data-index="{{ex}}">{{item.skuVal}}</view>
-            </view>
+          <view class="rule_box" wx:if="{{detail.color}}">
+              <view class="title">颜色:</view>
+              <view class="items">
+                  <view class="item" wx:for="{{detail.color}}" wx:key="item" data-color="{{item}}" @tap="chooseColor">{{item}}</view>
+              </view>
+          </view>
+          <view class="rule_box" wx:if="{{detail.size}}">
+              <view class="title">尺寸:</view>
+              <view class="items">
+                  <view class="item" wx:for="{{detail.size}}" wx:key="item" data-size="{{item}}" @tap="chooseSize">{{item}}</view>
+              </view>
           </view>
           <view class="num_box">
-            <view class="title">数量</view>
-            <view class="stock">库存:{{detail.stockNum}}件</view>
+            <view class="title">数量:</view>
+            <!-- <view class="stock">库存:{{detail.stockNum}}件</view> -->
             <view class="buy-num">
-              <view class="jian-btn {{item.number==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}">-</view>
+              <view class="jian-btn" catchtap="jianBtnTap" data-index="{{index}}">-</view>
               <input type="number" bindinput="bindOrderNumInput" value="{{orderNum}}" />
-              <view class="jia-btn {{item.number==10? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}">+</view>
+              <view class="jia-btn" catchtap="jiaBtnTap" data-index="{{index}}">+</view>
             </view>
           </view>
         </scroll-view>
@@ -179,7 +98,7 @@ export default class goodsDetail extends wepy.page {
     //购买方式:1-加购物车,2-立即购买
     orderType: 1,
     //购买数量
-    orderNum: 1,
+    orderNum: 1000,
     //是否收藏
     isFavorite: false,
     isValidDate: true,
@@ -187,30 +106,7 @@ export default class goodsDetail extends wepy.page {
     purchasetype: 1, //1-正常购买;2-补货
     purchaseText: "立即购买",
     special: 0, ////0-正常入库;1-特价专区和换货专区,
-    // commentList: [
-
-    //   {
-    //     url: "../images/icon_nav_01_new.png",
-    //     name: "浪子天涯",
-    //     time: "2017-10-01 10:10",
-    //     content: "东西收到,很满意!!真的是超级好的卖家,解答疑问不厌其烦,细致认真,关键是东西好,而且货物发得超快,包装仔细,值得信赖!",
-    //     start: 4.5,
-    //     children: [{
-    //       content: "跟你交易次次都这么成功和开心的．．希望我们以后有更多的交易吧．．．哈哈"
-    //     }]
-    //   },
-    //   {
-    //     url: "../images/icon_nav_02_new.png",
-    //     name: "勇闯天下",
-    //     time: "2017-10-01 10:10",
-    //     content: "太感谢了，衣服很漂亮，朋友很喜欢，最主要的是买家太好了~~~大大的赞一个。。。 衣服，很合身",
-    //     start: 4,
-    //     children: []
-    //   }
-
-
-    // ],
-    commentList1: [],
+    
   }
 
   components = {
@@ -218,7 +114,7 @@ export default class goodsDetail extends wepy.page {
   }
   onLoad(option) {
     let that = this;
-    this.orderNum = 1;
+    this.orderNum = 1000;
     this.purchasetype = 1;
     this.isFavorite = false;
     this.isValidDate = true;
@@ -267,7 +163,7 @@ export default class goodsDetail extends wepy.page {
       wx.previewImage({
         current: nowImgUrl, // 当前显示图片的http链接
         // urls: that.data[tagFrom].imageUrls // 需要预览的图片http链接列表
-        urls: that.bindData[tagFrom].imageUrls  // 注释掉上面的 换着一行 (http://blog.csdn.net/zhuming3834/article/details/74380079)
+        urls: that.detail[tagFrom].imageUrls
       })
     }
   }
@@ -278,6 +174,8 @@ export default class goodsDetail extends wepy.page {
       that.$apply();
     }
   }*/
+  
+  //获取商品详情
   async getGoodsDetail() {
     let that = this;
     //const json = await api.getGoodsDetail({
@@ -289,11 +187,16 @@ export default class goodsDetail extends wepy.page {
     let time = {};
     if (json.data.code == 0) {
       let data = json.data.data;
+      console.log(data)
+      //将张杰的二维码放入最后一张图片
+      data.imgs.push({
+        'thumb_img':'/images/identify.jpeg',
+        'img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/product/identify.jpeg'
+      });
       that.detail = data;
-      console.log(that.detail)
       //WxParse.wxParse('detailInfo', 'html', that.detail.detailInfo, this);  解析html
-      time.endTime = that.detail.validEndTime;
-      time.startTime = that.detail.startTime;
+      // time.endTime = that.detail.validEndTime;
+      // time.startTime = that.detail.startTime;
       /*time.startTime ="2017-07-15 16:00:00";
       time.endTime = "2017-07-21 16:04:00";*/
       /*
@@ -494,15 +397,29 @@ export default class goodsDetail extends wepy.page {
     //     url: "/pages/comment"
     //   })
     // },
+
+    chooseColor(e){
+      console.log('我正在选择颜色的颜色是: '+e.target.dataset.color);
+    },
+
+    chooseSize(e){
+      console.log('我正在选择的尺寸是: '+e.target.dataset.size);
+    },
     
     //点击显示高清图片
     previewImage(e) {
       let current = e.target.dataset.src;
       let imageArry = [];
-      let obj = this.detail.img;
-      Object.keys(obj).forEach((item) => {
-        imageArry.push(obj[item].photo)
-      });
+      let obj = this.detail.imgs;
+      if(!obj){
+        return false;
+      }
+      // Object.keys(obj).forEach((item) => {
+      //   imageArry.push(obj[item].img)
+      // });
+      for(var i=0;i<obj.length;i++){
+        imageArry.push(obj[i].img);
+      }
       wx.previewImage({
         current: current, // 当前显示图片的http链接
         urls: imageArry, // 需要预览的图片http链接列表
@@ -556,11 +473,11 @@ export default class goodsDetail extends wepy.page {
       }
     },
     jiaBtnTap(e) {
-      this.orderNum++;
+      this.orderNum+=1000;
     },
     jianBtnTap() {
-      if (this.orderNum > 1) {
-        this.orderNum--;
+      if (this.orderNum >= 1000) {
+        this.orderNum-=1000;
       }
     },
     selAttr(e) {

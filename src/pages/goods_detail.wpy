@@ -38,16 +38,16 @@
           </view>
         </view>
         <scroll-view scroll-y="true" style="height:400rpx">
-          <view class="rule_box" wx:if="{{detail.color}}">
+          <view class="rule_box" wx:if="{{hasColor}}">
               <view class="title">颜色:</view>
               <view class="items">
-                  <view class="item" wx:for="{{detail.color}}" wx:key="item" data-color="{{item}}" @tap="chooseColor">{{item}}</view>
+                  <view wx:for="{{detail.color}}" wx:key="item" wx:for-item="color" data-color="{{color}}" class="item {{selColor==color?'active':''}}" @tap="chooseColor">{{color}}</view>
               </view>
           </view>
-          <view class="rule_box" wx:if="{{detail.size}}">
+          <view class="rule_box" wx:if="{{hasSize}}">
               <view class="title">尺寸:</view>
               <view class="items">
-                  <view class="item" wx:for="{{detail.size}}" wx:key="item" data-size="{{item}}" @tap="chooseSize">{{item}}</view>
+                  <view wx:for="{{detail.size}}" wx:key="item" wx:for-item="size" data-size="{{size}}" class="item {{selSize==size?'active':''}}" @tap="chooseSize">{{size}}</view>
               </view>
           </view>
           <view class="num_box">
@@ -70,7 +70,8 @@
 import wepy from 'wepy'
 import {
   SYSTEM_INFO,
-  USER_SPECICAL_INFO
+  USER_SPECICAL_INFO,
+  SHOPPING_CART
 } from '../utils/constant';
 import tip from '../utils/tip'
 import api from '../api/api';
@@ -81,6 +82,7 @@ export default class goodsDetail extends wepy.page {
     navigationBarTitleText: '商品详情'
   }
   data = {
+    ok:false,
     winWidth: 0,
     winHeight: '100%',
     goodsId: 0,     //商品id
@@ -105,8 +107,12 @@ export default class goodsDetail extends wepy.page {
     canOrder: true, //是否能下单
     purchasetype: 1, //1-正常购买;2-补货
     purchaseText: "立即购买",
-    special: 0, ////0-正常入库;1-特价专区和换货专区,
-    
+    special: 0, //0-正常入库;1-特价专区和换货专区,
+    selColor:'',  //当前选择的颜色
+    selSize:'',    //当前选择的尺寸
+    hasColor:false,  //是否有颜色属性
+    hasSize:false    //是否有尺寸属性
+
   }
 
   components = {
@@ -125,21 +131,8 @@ export default class goodsDetail extends wepy.page {
     that.$apply();
     //接收上一个页面传过来的参数
     that.goodsId = option.product_id;
-    console.log('商品id为'+that.goodsId);
-    if (option.purchasetype != undefined) {
-      this.purchasetype = option.purchasetype;
-    }
-    if (this.purchasetype == 2) {
-      this.purchaseText = "申请补货";
-    } else {
-      this.purchaseText = "立即购买";
-    }
-    if (option.special != undefined) {
-      this.special = option.special;
-    }
     that.getGoodsDetail();
     that.addUserBrowser();
-    console.log("special===" + this.special);
   }
   onShow() {
     this.goodsIsFavorite();
@@ -178,7 +171,6 @@ export default class goodsDetail extends wepy.page {
   //获取商品详情
   async getGoodsDetail() {
     let that = this;
-    //const json = await api.getGoodsDetail({
     const json = await api.goodsDetail({
       query: {
         productID: that.goodsId
@@ -187,26 +179,19 @@ export default class goodsDetail extends wepy.page {
     let time = {};
     if (json.data.code == 0) {
       let data = json.data.data;
-      console.log(data)
+      console.log(data.color)
       //将张杰的二维码放入最后一张图片
       data.imgs.push({
         'thumb_img':'/images/identify.jpeg',
         'img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/product/identify.jpeg'
       });
       that.detail = data;
-      //WxParse.wxParse('detailInfo', 'html', that.detail.detailInfo, this);  解析html
-      // time.endTime = that.detail.validEndTime;
-      // time.startTime = that.detail.startTime;
-      /*time.startTime ="2017-07-15 16:00:00";
-      time.endTime = "2017-07-21 16:04:00";*/
-      /*
-      if (json.data.validDate == "0") {
-        that.isValidDate = false;
-        if (this.purchasetype == 1 && this.special != 1) {
-          this.canOrder = false;
-        }
+      if(data.color.length>0){
+        that.hasColor=true;
       }
-      */
+      if(data.size.length>0){
+        that.hasSize=true;
+      }
     } else {
       if (json.data.error) {
         tip.error(json.data.error)
@@ -230,38 +215,61 @@ export default class goodsDetail extends wepy.page {
   }
   computed = {}
   events = {}
+
   //加入购物车
   async doTakeCart() {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.addCart({
-      query: {
-        openId: openId,
-        goodsId: that.goodsId,
-        goodsSkuId: this.detail.goodsSkuValIds,
-        purchaseType: this.purchasetype,
-        num: this.orderNum
+
+    //购物车的数据存储在本地
+    let that=this;
+    if(that.hasColor && that.selColor==''){
+      tip.error('请选择颜色');
+      return false;
+    }
+    if(that.hasSize && that.selSize==''){
+      tip.error('请选择尺寸');
+      return false;
+    }
+    if(that.orderNum<1000){
+      tip.error('数量低于1000');
+      return false;
+    }
+    var shopping_cart=wx.getStorageSync(SHOPPING_CART) || {'data':[]};
+    var product={};
+    product.product_id=that.goodsId;
+    product.size=that.selSize;
+    product.color=that.selColor;
+    product.num=that.orderNum;
+
+    if(shopping_cart.data.length==0){
+      //直接将对象塞入
+      shopping_cart.data.push(product);
+    }else{
+      let info=shopping_cart.data
+      let hasSameProduct=false;
+      for(var i=0;i<info.length;i++){
+        //将相同属性的商品数量合并
+        if(info[i].product_id==that.goodsId && info[i].size==that.selSize && info[i].color==that.selColor){
+          hasSameProduct=true;
+          info[i].num+=that.orderNum;
+          shopping_cart.data=info;
+          break;    
+        }
       }
-    });
-    if (json.data.code == 0) {
-      this.winHeight = "100%";
-      this.animation.height(0).step();
-      this.setData({
-        animationData: this.animation.export()
-      })
-      setTimeout(() => {
-        this.hidden = true;
-        this.$apply();
-      }, 100)
-      tip.success("成功加入购物车");
-    } else {
-      if (json.data.msg) {
-        tip.error(json.data.msg)
-      } else {
-        tip.error('无法加入购物车')
+      //没有相同属性的商品
+      if(!hasSameProduct){
+        shopping_cart.data.push(product);
       }
     }
+    
+    try{
+      wx.setStorageSync(SHOPPING_CART,shopping_cart);
+    }catch(e){
+      tip.error('加入失败');
+      return false;
+    }
+    tip.success('加入成功');
+    return true;
+    
   }
   //立即购买
   async doTakeOrder() {
@@ -399,11 +407,11 @@ export default class goodsDetail extends wepy.page {
     // },
 
     chooseColor(e){
-      console.log('我正在选择颜色的颜色是: '+e.target.dataset.color);
+      this.selColor=e.target.dataset.color;
     },
 
     chooseSize(e){
-      console.log('我正在选择的尺寸是: '+e.target.dataset.size);
+      this.selSize=e.target.dataset.size;
     },
     
     //点击显示高清图片
@@ -466,11 +474,12 @@ export default class goodsDetail extends wepy.page {
       }, 100)
     },
     confirmTake() { //确定购物车或者直接购买
-      if (this.orderType == 1) {
-        this.doTakeCart();
-      } else if (this.orderType == 2) {
-        this.doTakeOrder();
-      }
+      // if (this.orderType == 1) {
+      //   this.doTakeCart();
+      // } else if (this.orderType == 2) {
+      //   this.doTakeOrder();
+      // }
+      this.doTakeCart();
     },
     jiaBtnTap(e) {
       this.orderNum+=1000;

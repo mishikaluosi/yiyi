@@ -20,3 +20,9 @@ export const SYSTEM_INFO = "systemInfo";
 export const ADDRESS_ID = "addressId";
 
 export const SEL_CLASS_CODE = "selClassCode";
+
+/**
+ * 购物车中的信息
+ * @type {object}
+ */
+export const SHOPPING_CART = "shopping_cart";

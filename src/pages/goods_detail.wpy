@@ -135,7 +135,6 @@ export default class goodsDetail extends wepy.page {
     that.addUserBrowser();
   }
   onShow() {
-    this.goodsIsFavorite();
     //创建动画
     var animation = wx.createAnimation({
       transformOrigin: "50% 50%",
@@ -233,31 +232,34 @@ export default class goodsDetail extends wepy.page {
       tip.error('数量低于1000');
       return false;
     }
-    var shopping_cart=wx.getStorageSync(SHOPPING_CART) || {'data':[]};
+    var shopping_cart=wx.getStorageSync(SHOPPING_CART) || [];
     var product={};
     product.product_id=that.goodsId;
     product.size=that.selSize;
     product.color=that.selColor;
     product.num=that.orderNum;
+    product.price=that.detail.price;
+    product.thumb_img=that.detail.imgs[0].thumb_img;
+    product.name=that.detail.name;
 
-    if(shopping_cart.data.length==0){
+    if(shopping_cart.length==0){
       //直接将对象塞入
-      shopping_cart.data.push(product);
+      shopping_cart.push(product);
     }else{
-      let info=shopping_cart.data
+      let info=shopping_cart
       let hasSameProduct=false;
       for(var i=0;i<info.length;i++){
         //将相同属性的商品数量合并
         if(info[i].product_id==that.goodsId && info[i].size==that.selSize && info[i].color==that.selColor){
           hasSameProduct=true;
           info[i].num+=that.orderNum;
-          shopping_cart.data=info;
+          shopping_cart=info;
           break;    
         }
       }
       //没有相同属性的商品
       if(!hasSameProduct){
-        shopping_cart.data.push(product);
+        shopping_cart.push(product);
       }
     }
     
@@ -318,34 +320,6 @@ export default class goodsDetail extends wepy.page {
       this.$apply();
     }, 100)
   }
-  //查看商品收藏状态
-  async goodsIsFavorite() {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.goodsIsFavorite({
-      query: {
-        openId: openId,
-        goodsId: that.goodsId
-      }
-    });
-    if (json.data.code == 0) {
-      if (json.data.isFavorite == 1) {
-        this.isFavorite = true;
-        console.log(this.isFavorite);
-      } else {
-        this.isFavorite = false;
-      }
-    } else {
-      console.log('查看商品收藏失败')
-      if (json.data.msg) {
-        tip.error(json.data.msg)
-      } else {
-        tip.error('查看商品收藏失败')
-      }
-    }
-    that.$apply();
-  }
   //商品收藏
   async goodsFavorite() {
     let that = this;
@@ -389,22 +363,6 @@ export default class goodsDetail extends wepy.page {
     that.$apply();
   }
   methods = {
-    // issus : https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui-navigate.html#wxrelaunchobject
-    // homePage() {
-    //   wepy.switchTab({
-    //     url: '/pages/home'
-    //   })
-      // wx.switchTab({
-      //   url: '/pages/home'
-      // })
-      // console.log(wepy)
-      // console.log(wx)
-    //},
-    // moreComment() {
-    //   wepy.navigateTo({
-    //     url: "/pages/comment"
-    //   })
-    // },
 
     chooseColor(e){
       this.selColor=e.target.dataset.color;
@@ -452,16 +410,6 @@ export default class goodsDetail extends wepy.page {
       this.orderType = 1;
       //this.doTakeCart();
     },
-    takeFavorite() {
-      if (this.isFavorite == true) {
-        this.goodsUnFavorite();
-        console.log("取消收藏");
-        console.log(this.isFavorite);
-      } else {
-        this.goodsFavorite();
-        console.log("收藏")
-      }
-    },
     closeModel() {
       this.winHeight = "100%";
       this.animation.height(0).step();
@@ -474,19 +422,14 @@ export default class goodsDetail extends wepy.page {
       }, 100)
     },
     confirmTake() { //确定购物车或者直接购买
-      // if (this.orderType == 1) {
-      //   this.doTakeCart();
-      // } else if (this.orderType == 2) {
-      //   this.doTakeOrder();
-      // }
       this.doTakeCart();
     },
     jiaBtnTap(e) {
-      this.orderNum+=1000;
+      this.orderNum+=500;
     },
     jianBtnTap() {
-      if (this.orderNum >= 1000) {
-        this.orderNum-=1000;
+      if (this.orderNum >= 1500) {
+        this.orderNum-=500;
       }
     },
     selAttr(e) {

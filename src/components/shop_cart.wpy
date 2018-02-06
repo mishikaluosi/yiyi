@@ -5,36 +5,39 @@
         <swipeDelete :swipeData="item" @delItem.user="handleDelItem">
           <!-- <view class="a-goods-conts {{item.ischecked? 'active':''}}"  > -->
           <view class="goods-info">
-            <icon class="icon_check" type="success" color="{{item.ischecked?'red':'rgb(153,153,153)'}}" @tap.stop="selectTap" data-index="{{index}}" data-id="{{item.id}}" size="20" />
+            <!-- <icon class="icon_check" type="success" color="{{item.ischecked?'red':'rgb(153,153,153)'}}" @tap.stop="selectTap" data-index="{{index}}" data-id="{{item.id}}" size="20" /> -->
             <view class="img-box">
-              <image src="{{item.thumLogo}}" class="img" />
+              <image src="{{item.thumb_img}}" class="img" />
             </view>
             <view class="text-box">
               <view class="goods-title">
-                <navigator url="/pages/goods_detail?id={{item.goodsId}}">
-                  {{item.goodsName}}
+                <navigator url="/pages/goods_detail?product_id={{item.product_id}}">
+                  {{item.name}}
                 </navigator>
               </view>
               <!--  -->
               <view class="lable">
-                <view class="goods-lable">{{item.goodsSkuValName}}</view>
-                <view class="bo-label" wx:if="{{item.type==2}}">补货</view>
+                <view class="goods-lable">
+                  <span wx:if="{{item.product_id}}">编号:{{item.product_id}}</span> 
+                  <span style="padding-left:10rpx" wx:if="{{item.size}}">尺寸:{{item.size}}</span> 
+                  <span style="padding-left:10rpx" wx:if="{{item.color}}">颜色:{{item.color}}</span> 
+                  </view>
               </view>
               <view class="goods-price">¥ {{item.price}}</view>
               <view class="buy-num">
-                <view class="jian-btn {{item.num==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-id="{{item.id}}">-</view>
+                <view class="jian-btn {{item.num<=1000? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-product="{{item.product_id}}">-</view>
                 <input type="number" value="{{item.num}}" disabled/>
-                <view class="jia-btn {{item.num==1000? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}" data-id="{{item.id}}">+</view>
+                <view class="jia-btn" catchtap="jiaBtnTap" data-index="{{index}}" data-product="{{item.product_id}}">+</view>
               </view>
             </view>
           </view>
-          <!--   </view> -->
+            <!-- </view> -->
         </swipeDelete>
       </view>
     </repeat>
   </view>
   <view class="empty_cart" wx:if="{{list.length==0}}">
-    <image src="../images/empty_cart.png" class="empty_cart_img"></image>
+    <image src="../images/empty_cart.png" class="empty_cart_img" />
     <view class="empty_cart_text">购物车还是空的</view>
     <view class="shop_btn">
       <view class="block btn_group">
@@ -44,13 +47,13 @@
   </view>
   <view class="jiesuan-box" wx:if="{{list.length>0}}">
     <view class="left-price">
-      <view @tap.stop="selectAll" class="all_select_box">
+      <!-- <view @tap.stop="selectAll" class="all_select_box">
         <icon type="success" size="20" color="{{allChecked?'red':'rgb(153,153,153)'}}" />
         <view class="all_select">全选</view>
-      </view>
+      </view> -->
       <view class="total" hidden="{{noSelect}}">合计：¥ {{totalPrice}}</view>
     </view>
-    <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{!saveHidden}}" bindtap="toPayOrder">去结算</view>
+    <!-- <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{!saveHidden}}" bindtap="toPayOrder">去结算</view> -->
   </view>
 </template>
 
@@ -59,7 +62,8 @@
   import api from '../api/api';
   import tip from '../utils/tip';
   import {
-    USER_SPECICAL_INFO
+    USER_SPECICAL_INFO,
+    SHOPPING_CART
   } from '../utils/constant';
   import swipeDelete from './common/wepy-swipe-delete'
   export default class shopCart extends wepy.component {
@@ -72,41 +76,45 @@
       saveHidden: true,
       totalPrice: 0,
       operating: false,
-      allChecked: true
+      allChecked: false
     }
     //获取购物车商品列表
     async getCartList() {
       let that = this;
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.cartList({
-        query: {
-          openId: openId
-        }
-      });
-      if (json.data.code == 0) {
-        let data = json.data;
-        this.list = data.list;
-        this.totalPrice = data.totalPrice;
-        for (var i = 0; i < this.list.length; i++) {
-          if (!this.list[i].ischecked) {
-            this.allChecked = false;
-            break;
-          }
-        }
-      } else {
-        tip.error(json.data.msg)
+      let shopping_cart=wx.getStorageSync(SHOPPING_CART);
+      that.list=[];
+      if(shopping_cart){
+        that.list=shopping_cart;
+      }else{
+        that.list=[];
       }
       that.$apply();
+      
+    }
+    onShow() {
+
     }
     onLoad() {
       let that = this;
       this.operating = false;
-      //that.list = bb.result.products;
-      //console.log(bb.result.products)
-      //that.getCartList();
+      that.getCartList();
     }
     computed = {}
+    watch = {
+      //侦听list,总价格的计算是根据list的变化而变化的
+      list:function(){
+        var that=this;
+        var total= 0;
+        if(that.list.length>0){
+          for(var i=0;i<that.list.length;i++){
+            var price=parseInt(that.list[i]['price']);
+            var num=parseInt(that.list[i]['num']);
+            total+=price*num;
+          }
+        }
+        that.totalPrice=total;
+      }
+    }
     async checkGoods(id, index, ischecked) {
       let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
       let openId = userSpecialInfo.openid;
@@ -129,44 +137,16 @@
       }
       this.$apply();
     }
-    async reduceGoodNum(id, num, index) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.cartUpdateNum({
-        query: {
-          openId: openId,
-          id: id,
-          num: num
-        }
-      });
-      if (json.data.code == 0) {
-        // 购物车数据
-        this.list[index].num = num;
-        this.totalPrice = this.totalPrice - this.list[index].price;
-        this.operating = false;
-      } else {
-        tip.error(json.data.msg)
-      }
+    //减少商品数量并更新缓存
+    async reduceGoodNum(product_id, num, index) {
+      this.list[index].num=num;
+      wx.setStorageSync(SHOPPING_CART,this.list)
       this.$apply();
     }
-    async addGoodNum(id, num, index) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.cartUpdateNum({
-        query: {
-          openId: openId,
-          id: id,
-          num: num
-        }
-      });
-      if (json.data.code == 0) {
-        // 购物车数据
-        this.list[index].num = num;
-        this.totalPrice = parseInt(this.totalPrice) + parseInt(this.list[index].price);
-        this.operating = false;
-      } else {
-        tip.error(json.data.msg)
-      }
+    //增加商品数量并更新缓存
+    async addGoodNum(num, index) {
+      this.list[index].num=num;
+      wx.setStorageSync(SHOPPING_CART,this.list)
       this.$apply();
     }
     async deleteGoods(itemData) {
@@ -239,39 +219,32 @@
         this.checkGoods(id, index, ischecked);
       },
       selectAll() {
-        console.log("sele....");
         this.checkAllGoods();
       },
       getCartListMethod() {
         this.getCartList();
       },
       jianBtnTap(e) {
-        if (this.operating) {
-          return;
-        }
         this.operating = true;
-        var id = e.currentTarget.dataset.id;
+        var product_id = e.currentTarget.dataset.product_id;
         var index = parseInt(e.currentTarget.dataset.index);
         var num = this.list[index].num;
-        // 如果只有1件了，就不允许再减了
-        if (num > 1) {
-          num--;
+        
+        if (num >= 1500) {
+          num-=500;
         } else {
           return;
         }
-        this.reduceGoodNum(id, num, index);
+        this.reduceGoodNum(product_id, num, index);
       },
       jiaBtnTap(e) {
-        if (this.operating) {
-          return;
-        }
         this.operating = true;
-        var id = e.currentTarget.dataset.id;
+        //var product_id = e.currentTarget.dataset.product_id;
         var index = parseInt(e.currentTarget.dataset.index);
         var num = this.list[index].num;
         // 自增
-        num++;
-        this.addGoodNum(id, num, index);
+        num+=500;
+        this.addGoodNum(num, index);
       },
       toPayOrder() {
         let purType = 1,
@@ -301,7 +274,7 @@
       },
       goIndex() {
         wepy.switchTab({
-          url: "/pages/home"
+          url: "/pages/classify"
         })
       }
     }
@@ -330,10 +303,10 @@
       overflow: hidden;
       margin-right: 20rpx;
       background-color: #d8d8d8;
-      margin-left: 100rpx;
+      margin-left: 30rpx;
     }
     .text-box {
-      width: 440rpx;
+      width: 500rpx;
       position: relative;
     }
     .text-box .goods-title {
@@ -459,7 +432,7 @@
     display: flex;
     width: 510rpx;
     justify-content: space-between;
-    padding: 0 30rpx 0 20rpx;
+    padding: 0 30rpx 0 30rpx;
     font-size: 28rpx;
     box-sizing: border-box;
     align-items: center;

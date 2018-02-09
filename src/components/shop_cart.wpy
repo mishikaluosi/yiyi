@@ -115,28 +115,7 @@
         that.totalPrice=total;
       }
     }
-    async checkGoods(id, index, ischecked) {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.cartCheck({
-        query: {
-          openId: openId,
-          id: id
-        }
-      });
-      if (json.data.code == 0) {
-        // 购物车数据
-        this.list[index].ischecked = !ischecked;
-        if (this.list[index].ischecked) {
-          this.totalPrice += parseInt(this.list[index].priceSubtotal);
-        } else {
-          this.totalPrice -= parseInt(this.list[index].priceSubtotal);
-        }
-      } else {
-        tip.error(json.data.msg)
-      }
-      this.$apply();
-    }
+    
     //减少商品数量并更新缓存
     async reduceGoodNum(product_id, num, index) {
       this.list[index].num=num;
@@ -149,64 +128,28 @@
       wx.setStorageSync(SHOPPING_CART,this.list)
       this.$apply();
     }
+    //删除商品
     async deleteGoods(itemData) {
-      var id = itemData.id;
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.cartDel({
-        query: {
-          openId: openId,
-          cartIdList: [id],
-        }
-      });
-      if (json.data.code == 0) {
-        // 购物车数据
-        let retList = [];
-        for (var i = 0; i < this.list.length; i++) {
-          if (this.list[i].id == id) {
-            if (this.list[i].ischecked) {
-              this.totalPrice -= parseInt(this.list[i].priceSubtotal);
-            }
-            continue;
-          } else {
-            retList.push(this.list[i]);
+      let product_id=itemData.product_id;
+      let size=itemData.size;
+      let color=itemData.color;
+      let info=wx.getStorageSync(SHOPPING_CART) || [];
+      
+      if(info){
+        for(var i=0;i<info.length;i++){
+          if(info[i].product_id==product_id && info[i].size==size && info[i].color==color){
+            info.splice(i,1);   //移除指定的元素
+            break;
           }
         }
-        this.list = retList;
-      } else {
-        tip.error(json.data.msg)
+        wx.setStorageSync(SHOPPING_CART,info);
+        this.list=info;
+        this.$apply();
+        return ;  
       }
-      this.$apply();
-    }
+      return false;
 
-    async checkAllGoods() {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      let check = 0;
-      if (!this.allChecked) {//原来未选中
-        check = 1;
-      }
-      const json = await api.cartCheckAll({
-        query: {
-          openId: openId,
-          check: check
-        }
-      });
-      if (json.data.code == 0) {
-        this.totalPrice = 0;
-        for (var i = 0; i < this.list.length; i++) {
-          this.list[i].ischecked = !this.allChecked;
-          if (!this.allChecked) {
-            this.totalPrice += parseInt(this.list[i].priceSubtotal);
-          }
-        }
-        this.allChecked = !this.allChecked;
-      } else {
-        tip.error(json.data.msg)
-      }
-      this.$apply();
     }
-
 
     methods = {
       handleDelItem(itemData) {
@@ -239,7 +182,6 @@
       },
       jiaBtnTap(e) {
         this.operating = true;
-        //var product_id = e.currentTarget.dataset.product_id;
         var index = parseInt(e.currentTarget.dataset.index);
         var num = this.list[index].num;
         // 自增
@@ -283,6 +225,9 @@
 </script>
 
 <style lang="less">
+  .goodsList{
+    padding-bottom:110rpx;
+  }
   .goods-info {
     border-bottom: 1px solid #eee;
     display: flex;

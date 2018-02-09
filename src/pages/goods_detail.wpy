@@ -132,7 +132,6 @@ export default class goodsDetail extends wepy.page {
     //接收上一个页面传过来的参数
     that.goodsId = option.product_id;
     that.getGoodsDetail();
-    that.addUserBrowser();
   }
   onShow() {
     //创建动画
@@ -178,7 +177,6 @@ export default class goodsDetail extends wepy.page {
     let time = {};
     if (json.data.code == 0) {
       let data = json.data.data;
-      console.log(data.color)
       //将张杰的二维码放入最后一张图片
       data.imgs.push({
         'thumb_img':'/images/identify.jpeg',

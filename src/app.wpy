@@ -12,7 +12,7 @@ import {
   USER_INFO,
   SYSTEM_INFO,
   ADDRESS_ID,
-  SEL_CLASS_CODE
+  SEL_CLASS_CODE,
 } from "./utils/constant";
 import {
   wxJsCode2Session,

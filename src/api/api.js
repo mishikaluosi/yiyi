@@ -139,6 +139,9 @@ const refundApply = (params) => wxRequest(params, apiMall + '/api/mall/refund/sa
 const rootCtegoryList = (params) => wxRequest(params, apiMall + '/category/parent');
 //二级分类
 const childGoodsCatetoryList = (params) => wxRequest(params, apiMall + '/category/son');
+//点击分类log
+const childCategoryLog = (params) => wxRequest(params, apiMall + '/category/log');
+
 //商品分类--end
 
 //查询广告列表
@@ -194,5 +197,6 @@ module.exports = {
     getMyOrderSize,
     getPayOrderDetail,
     getAdList,
-    getSignDate
+    getSignDate,
+    childCategoryLog
 }

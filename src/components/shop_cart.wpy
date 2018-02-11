@@ -3,9 +3,7 @@
     <repeat for="{{list}}" key="index" index="index" item="item">
       <view class="list_box">
         <swipeDelete :swipeData="item" @delItem.user="handleDelItem">
-          <!-- <view class="a-goods-conts {{item.ischecked? 'active':''}}"  > -->
           <view class="goods-info">
-            <!-- <icon class="icon_check" type="success" color="{{item.ischecked?'red':'rgb(153,153,153)'}}" @tap.stop="selectTap" data-index="{{index}}" data-id="{{item.id}}" size="20" /> -->
             <view class="img-box">
               <image src="{{item.thumb_img}}" class="img" />
             </view>
@@ -47,13 +45,8 @@
   </view>
   <view class="jiesuan-box" wx:if="{{list.length>0}}">
     <view class="left-price">
-      <!-- <view @tap.stop="selectAll" class="all_select_box">
-        <icon type="success" size="20" color="{{allChecked?'red':'rgb(153,153,153)'}}" />
-        <view class="all_select">全选</view>
-      </view> -->
       <view class="total" hidden="{{noSelect}}">合计：¥ {{totalPrice}}</view>
     </view>
-    <!-- <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{!saveHidden}}" bindtap="toPayOrder">去结算</view> -->
   </view>
 </template>
 
@@ -154,12 +147,6 @@
     methods = {
       handleDelItem(itemData) {
         this.deleteGoods(itemData);
-      },
-      selectTap(e) {
-        var id = e.currentTarget.dataset.id;
-        var index = parseInt(e.currentTarget.dataset.index);
-        var ischecked = this.list[index].ischecked;
-        this.checkGoods(id, index, ischecked);
       },
       selectAll() {
         this.checkAllGoods();

@@ -29,4 +29,20 @@
 
 ## 备忘
 后台的缩略图分表率太低,应当加大	
+VS Code可以通过以下快捷键格式化代码：
+
+windows：Shift + Alt + F
+
+Mac：Shift + Option + F
+
+Ubuntu： Ctrl + Shift + I
+
+
+
+v1.1 
+加入商品页面分享功能
+减少分类页面请求次数(一小时的缓存)
+分类页面点击统计
+
+
 

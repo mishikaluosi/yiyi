@@ -88,11 +88,6 @@ export default class goodsDetail extends wepy.page {
     goodsId: 0,     //商品id
     detail: {},
     good_bigimg: [],
-    //订单活动开始时间（格式yy-mm-dd 或者 yy/mm/dd ）
-    //startTime: "2017-07-15 16:00:00",
-    startTime: "",
-    //订单活动结束时间（格式yy-mm-dd 或者 yy/mm/dd ）
-    //endTime: "2017-07-21 16:04:00"
     endTime: "",
     hidden: true,
     //动画效果
@@ -153,7 +148,6 @@ export default class goodsDetail extends wepy.page {
     if (typeof (tagFrom) != 'undefined' && tagFrom.length > 0) {
       wx.previewImage({
         current: nowImgUrl, // 当前显示图片的http链接
-        // urls: that.data[tagFrom].imageUrls // 需要预览的图片http链接列表
         urls: that.detail[tagFrom].imageUrls
       })
     }
@@ -271,41 +265,7 @@ export default class goodsDetail extends wepy.page {
     return true;
     
   }
-  //立即购买
-  async doTakeOrder() {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.addCart({
-      query: {
-        openId: openId,
-        goodsId: that.goodsId,
-        goodsSkuId: this.detail.goodsSkuValIds,
-        purchaseType: this.purchasetype,
-        num: this.orderNum
-      }
-    });
-    if (json.data.code == 0) {
-      this.winHeight = "100%";
-      this.animation.height(0).step();
-      this.setData({
-        animationData: this.animation.export()
-      })
-      setTimeout(() => {
-        this.hidden = true;
-        this.$apply();
-      }, 100)
-      wepy.navigateTo({
-        url: "/pages/comfire_order?goodsId=" + that.goodsId + "&purchasetype=" + that.purchasetype
-      })
-    } else {
-      if (json.data.msg) {
-        tip.error(json.data.msg)
-      } else {
-        tip.error('无法立刻购买')
-      }
-    }
-  }
+  
   async showConfirmData() {
     this.animation.height('783rpx').step();
     this.setData({
@@ -318,48 +278,7 @@ export default class goodsDetail extends wepy.page {
       this.$apply();
     }, 100)
   }
-  //商品收藏
-  async goodsFavorite() {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.goodsFavorite({
-      query: {
-        openId: openId,
-        goodsId: that.goodsId
-      }
-    });
-    if (json.data.code == 0) {
-      console.log("===========商品收藏成功=========")
-      this.isFavorite = true;
-      tip.toast("收藏成功");
-    } else {
-      console.log(json.data)
-      tip.error('收藏失败')
-    }
-    that.$apply();
-  }
-  //商品取消收藏
-  async goodsUnFavorite() {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.goodsUnFavorite({
-      query: {
-        openId: openId,
-        goodsId: that.goodsId
-      }
-    });
-    if (json.data.code == 0) {
-      console.log("===========商品取消收藏成功=========")
-      tip.toast("取消收藏成功");
-      this.isFavorite = false;
-    } else {
-      console.log(json.data)
-      tip.error('取消收藏失败')
-    }
-    that.$apply();
-  }
+  
   methods = {
 
     chooseColor(e){
@@ -392,14 +311,7 @@ export default class goodsDetail extends wepy.page {
     bindOrderNumInput(e) {
       this.orderNum = e.detail.value;
     },
-    takeOrder() {
-      if (!this.canOrder) {
-        return;
-      }
-      this.showConfirmData();
-      this.orderType = 2;
-      //this.doTakeOrder();
-    },
+    
     takeCart() {
       if (!this.canOrder) {
         return;
@@ -430,49 +342,20 @@ export default class goodsDetail extends wepy.page {
         this.orderNum-=500;
       }
     },
-    selAttr(e) {
-      var id = e.currentTarget.dataset.id;
-      var nameid = e.currentTarget.dataset.nameid;
-      var index = e.currentTarget.dataset.index;
-      for (var i = 0; i < this.detail.goodsSkuNameList.length; i++) {
-        var skuValList = this.detail.goodsSkuNameList[i].skuValList;
-        for (var j = 0; j < skuValList.length; j++) {
-          var skuVal = skuValList[j];
-          if (skuVal.skuNameId == nameid) {
-            skuVal.current = false;
-            if (skuVal.skuValId == id) {
-              skuVal.current = true;
-              this.detail.goodsSkuValIds[index] = id;
-              for (var k = 0; k < this.detail.goodsSkuList.length; k++) {
-                var skuValIds = JSON.parse(this.detail.goodsSkuList[k].skuValIds).toArray;
-                console.log("goodskuids..." + this.detail.goodsSkuList[k].skuValIds);
-                console.log("this goodskuids..." + this.detail.goodsSkuValIds);
-                if ("[" + this.detail.goodsSkuValIds.toString() + "]" === this.detail.goodsSkuList[k].skuValIds) {
-                  console.log("goodskuids equals...");
-                  this.detail.stockNum = this.detail.goodsSkuList[k].stockNum;
-                  this.detail.price = this.detail.goodsSkuList[k].price;
-                  this.$apply();
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     onShareAppMessage: function(res) {
       if (res.from === 'button') {
-        // 来自页面内转发按钮
+        
         console.log(res.target)
       }
       return {
         title: this.detail.name,
-        path: '/pages/goods_detail?id=' + this.goodsId,
+        path: '/pages/goods_detail?product_id=' + this.detail.id,
         success: function(res) {
           // 转发成功
+          console.log('转发成功');
         },
         fail: function(res) {
-          // 转发失败
+          tip.error('转发失败');
         }
       }
     }

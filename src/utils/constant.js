@@ -23,6 +23,18 @@ export const SEL_CLASS_CODE = "selClassCode";
 
 /**
  * 购物车中的信息
- * @type {object}
+ * @type {String}
  */
 export const SHOPPING_CART = "shopping_cart";
+
+/**
+ * 分类页面的缓存有效时间
+ * @type {int}
+ */
+export const TIME_DIFF_CATE = 60 * 60;
+
+/**
+ * 二级分类缓存
+ * @type {String}
+ */
+export const CHILD_CATE = "child_cate";

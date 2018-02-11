@@ -16,22 +16,22 @@
   </view>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '../api/api';
+import wepy from "wepy";
+import api from "../api/api";
 import {
   SYSTEM_INFO,
-  SEL_CLASS_CODE
-} from '../utils/constant';
+  SEL_CLASS_CODE,
+  CHILD_CATE,
+  TIME_DIFF_CATE
+} from "../utils/constant";
 
-import tip from '../utils/tip'
+import tip from "../utils/tip";
 
 export default class Classify extends wepy.page {
   config = {
-    navigationBarTitleText: '分类',
-  }
-  components = {
-
-  }
+    navigationBarTitleText: "分类"
+  };
+  components = {};
 
   data = {
     scrollTop: 100,
@@ -40,25 +40,38 @@ export default class Classify extends wepy.page {
     //一级分类数据
     rootcateList: {},
     //二级分类数据
-    childcateList: {},
-  }
+    childcateList: {}
+  };
 
   async getChildCate(rootCateCode) {
     //根据父类id获取子分类
-    const json = await api.childGoodsCatetoryList({
-      query: {
-        parentCategoryID: rootCateCode
-      }
-    });
-    if (json.data.code == 0) {
-      this.childcateList = json.data.data;
+    //加入缓存,减少请求次数,constant.js中控制时间间隔
+    let _timestamp = Date.parse(new Date()) / 1000; //毫秒级别
+    let cache_key = CHILD_CATE + "_" + rootCateCode; //缓存key
+    let child_cate = wx.getStorageSync(cache_key) || {};
+
+    if (child_cate && _timestamp - child_cate.time <= TIME_DIFF_CATE) {
+      this.childcateList = child_cate.data;
     } else {
-      tip.error(json.data.error);
+      const json = await api.childGoodsCatetoryList({
+        query: {
+          parentCategoryID: rootCateCode
+        }
+      });
+      if (json.data.code == 0) {
+        this.childcateList = json.data.data;
+        wx.setStorageSync(cache_key, {
+          time: _timestamp,
+          data: this.childcateList
+        });
+      } else {
+        tip.error(json.data.error);
+      }
     }
     this.$apply();
   }
 
-//异步获取顶级分类
+  //异步获取顶级分类
   async getRootCateTopLevel() {
     const json = await api.rootCtegoryList({
       query: {}
@@ -66,11 +79,11 @@ export default class Classify extends wepy.page {
     if (json.data.code == 0) {
       this.rootcateList = json.data.data;
       if (this.rootcateList.length > 0) {
-        let selCode = wx.getStorageSync(SEL_CLASS_CODE);  //高亮的cateid
-        var selRottCateCode = this.rootcateList[0].id;    // cateID
+        let selCode = wx.getStorageSync(SEL_CLASS_CODE); //高亮的cateid
+        var selRottCateCode = this.rootcateList[0].id; // cateID
         //没有selCode,默认为第一个分类选中
-        if (selCode.length==0) {
-          this.rootcateList[0].active = true;     //active属性为当前选中的哪个(默认为第一个)
+        if (selCode.length == 0) {
+          this.rootcateList[0].active = true; //active属性为当前选中的哪个(默认为第一个)
         } else {
           for (var i = 0; i < this.rootcateList.length; i++) {
             if (selCode == this.rootcateList[i].id) {
@@ -93,19 +106,16 @@ export default class Classify extends wepy.page {
     let that = this;
     let systemInfo = wx.getStorageSync(SYSTEM_INFO);
     this.windowHeight = systemInfo.windowHeight;
+    this.getRootCateTopLevel();
     this.$apply();
   }
 
-  onShow() {
-    this.getRootCateTopLevel();
-  }
+  onShow() {}
 
-  computed = {
-
-  }
+  computed = {};
   methods = {
     changeCate(e) {
-      let pid = e.currentTarget.dataset.id;   //获取当前行中 data-id属性的值
+      let pid = e.currentTarget.dataset.id; //获取当前行中 data-id属性的值
       this.getChildCate(pid);
       wepy.setStorageSync(SEL_CLASS_CODE, pid);
       //设置一级分类的选中状态
@@ -116,28 +126,10 @@ export default class Classify extends wepy.page {
           rootCate.active = true;
         }
       }
-    },
-    onShareAppMessage: function (res) {
-      if (res.from === 'button') {
-        // 来自页面内转发按钮
-      }
-      return {
-        title: this.detail.name,
-        path: '/pages/classify',
-        success: function(res) {
-          // 转发成功
-        },
-        fail: function(res) {
-          // 转发失败
-        }
-      }
     }
-  }
-  events = {
-
-  }
+  };
+  events = {};
 }
-
 </script>
 <style lang="less">
 .search_read_only .search_content {
@@ -173,7 +165,8 @@ export default class Classify extends wepy.page {
     // margin-left: -15rpx;
     background: #fff;
     padding: 15px 10px 10px 30px;
-    .classify_item {}
+    .classify_item {
+    }
     .title {
       font-size: 30rpx;
       color: #333;
@@ -201,8 +194,6 @@ export default class Classify extends wepy.page {
       width: 170rpx;
       text-align: center;
     }
-  
   }
 }
-
 </style>

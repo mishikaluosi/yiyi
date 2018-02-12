@@ -35,6 +35,6 @@ export const TIME_DIFF_CATE = 60 * 60;
 
 /**
  * 二级分类缓存
- * @type {String}
+ * @type {String} child_cate_cid
  */
 export const CHILD_CATE = "child_cate";

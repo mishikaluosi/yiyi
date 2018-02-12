@@ -44,7 +44,7 @@ export default class ShopGridList extends wepy.component {
   }
 
   onLoad() {
-
+  
   }
 }
 

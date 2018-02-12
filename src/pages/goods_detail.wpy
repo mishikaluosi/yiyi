@@ -127,6 +127,8 @@ export default class goodsDetail extends wepy.page {
     //接收上一个页面传过来的参数
     that.goodsId = option.product_id;
     that.getGoodsDetail();
+    that.productLog(that.goodsId);
+    
   }
   onShow() {
     //创建动画
@@ -140,6 +142,17 @@ export default class goodsDetail extends wepy.page {
   }
   wxParseImgLoad(e) {
   }
+  
+  //记录商品点击统计
+  async productLog(product_id){
+    let that=this;
+    const json=await api.productLog({
+      method:"POST",
+      query:{
+        product_id:product_id
+      }
+    })
+  }
 
   wxParseImgTap(e) {
     var that = this
@@ -152,14 +165,6 @@ export default class goodsDetail extends wepy.page {
       })
     }
   }
-  /*onReachBottom() {
-    let that = this;
-    if (that.good_bigimg.length == 0) {
-      that.good_bigimg = that.detail.good_bigimg;
-      that.$apply();
-    }
-  }*/
-  
   //获取商品详情
   async getGoodsDetail() {
     let that = this;
@@ -183,6 +188,9 @@ export default class goodsDetail extends wepy.page {
       if(data.size.length>0){
         that.hasSize=true;
       }
+      wx.setNavigationBarTitle({
+        title: that.detail.name
+      })
     } else {
       if (json.data.error) {
         tip.error(json.data.error)

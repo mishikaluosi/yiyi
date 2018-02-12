@@ -26,6 +26,8 @@ const getGoodsList = (params) => wxRequest(params, apiMall + '/product/list');
 
 //查询商品详情信息
 const goodsDetail = (params) => wxRequest(params, apiMall + '/product/detail');
+//商品点击记录
+const productLog = (params) => wxRequest(params, apiMall + '/product/log');
 //商品加入购物车
 const addCart = (params) => wxRequest(params, apiMall + '/api/mall/goodsCart/add');
 //用户的购物车商品列表
@@ -198,5 +200,6 @@ module.exports = {
     getPayOrderDetail,
     getAdList,
     getSignDate,
-    childCategoryLog
+    childCategoryLog,
+    productLog
 }

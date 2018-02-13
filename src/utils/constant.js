@@ -38,3 +38,10 @@ export const TIME_DIFF_CATE = 60 * 60;
  * @type {String} child_cate_cid
  */
 export const CHILD_CATE = "child_cate";
+
+
+/**
+ * 地址缓存
+ * @type {String} 
+ */
+export const ADDRESS = "address";

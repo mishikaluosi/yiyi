@@ -1,4 +1,5 @@
 <!--地址管理-->
+<!-- 添加了一个地址后,再点击会呈现编辑页面 -->
 <template>
   <view class="{{currentPage==0?'':'hidden'}}">
     <addressList :list.sync="addressList" @currentPage.user="getCurrentPage"></addressList>

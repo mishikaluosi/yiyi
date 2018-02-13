@@ -184,8 +184,6 @@ export default class AreaPicker extends wepy.component {
       });
 
 
-      console.log('执行了区级判断');
-
       const rAreas = rCities[defaultValue[1]].areas;
 
       if (rAreas) { //这里是判断选择的这个市在数据里面有没有区县

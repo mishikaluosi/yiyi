@@ -9,12 +9,12 @@
       <view class="address_info" wx:else>
         <view class="title">
           <view class="user_info">
-            <text class="name">{{address.receiverName}}</text>
-            <text class="phone">{{address.mobile}}</text>
+            <text class="name">{{address.info.receiver}}</text>
+            <text class="phone">{{address.info.mobile}}</text>
           </view>
           <view class="active_address">
-            <text class="defult" wx:if="{{address.isdefault==1}}"> [默认]</text>
-            {{address.addressDetail}}
+            <text class="defult" wx:if="{{address.is_default==1}}"> [默认]</text>
+            {{address.info.detail}}
           </view>
         </view>
         <view class="arrow">&gt;</view>
@@ -38,25 +38,26 @@
     </view>
     <view class="pay_box">
       <form report-submit bindsubmit="goPay" >
-        <button form-type="submit" class="button type_green">微信支付</button>
+        <button form-type="submit" class="button type_green">提交订单</button>
       </form>
     </view>
   </view>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '../api/api';
-import tip from '../utils/tip';
+import wepy from "wepy";
+import api from "../api/api";
+import tip from "../utils/tip";
 import {
   SYSTEM_INFO,
   USER_SPECICAL_INFO,
   ADDRESS_ID,
-  SHOPPING_CART
-} from '../utils/constant';
+  SHOPPING_CART,
+  ADDRESS
+} from "../utils/constant";
 export default class ComfireOrder extends wepy.page {
   config = {
-    navigationBarTitleText: '确认订单',
-  }
+    navigationBarTitleText: "确认订单"
+  };
 
   data = {
     //卖家留言
@@ -65,55 +66,54 @@ export default class ComfireOrder extends wepy.page {
     is_exit_address: false,
     address: {},
     //总价
-    totalPrice:0,
+    totalPrice: 0,
     operating: false
-  }
+  };
 
   //获取订单总价格
-  async getOrderTotalPrice(){
-    let that=this;
-    let shopping_cart=wx.getStorageSync(SHOPPING_CART) || [];
-    if(shopping_cart.length>0){
-      for(var i=0;i<shopping_cart.length;i++){
-         that.totalPrice+=shopping_cart[i].num * shopping_cart[i].price;
+  async getOrderTotalPrice() {
+    let that = this;
+    let shopping_cart = wx.getStorageSync(SHOPPING_CART) || [];
+    if (shopping_cart.length > 0) {
+      for (var i = 0; i < shopping_cart.length; i++) {
+        that.totalPrice += shopping_cart[i].num * shopping_cart[i].price;
       }
-    }else{
-      tip.error('计算价格失败');
+    } else {
+      tip.error("计算价格失败");
     }
     this.$apply();
-
   }
 
-  async getAddressInfo(id) {
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.receiverInfoById({
-      query: {
-        id: id
-      }
-    });
-    if (json.data.code == 0) {
-      this.is_exit_address = true;
-      this.address=json.data.receiverInfo;
-    } else {
-      tip.error(json.data.msg)
-    }
+  async getAddressInfo(addr, id) {
+    this.is_exit_address = true;
+    this.address = addr[id];
   }
 
   onLoad(option) {
     let that = this;
 
     this.operating = false;
-    that.goodsId = option.goodsId==undefined?"":option.goodsId;
-    this.purchaseType = option.purchasetype==undefined?"1":option.purchasetype;
+    that.goodsId = option.goodsId == undefined ? "" : option.goodsId;
+    this.purchaseType =
+      option.purchasetype == undefined ? "1" : option.purchasetype;
     that.getOrderTotalPrice();
-    let from = option.from==undefined?"":option.from;
-    if (from=="selAdd") {
-      this.getAddressInfo(wepy.getStorageSync(ADDRESS_ID))
+    let from = option.from == undefined ? "" : option.from;
+
+    let addr = wx.getStorageSync(ADDRESS) || [];
+    if (addr.length > 0) {
+      for (var i = 0; i < addr.length; i++) {
+        if (addr[i].is_default == true) {
+          that.is_exit_address = true;
+          that.address = addr[i];
+          break;
+        }
+      }
+      if (from == "selAdd") {
+        this.getAddressInfo(addr, wepy.getStorageSync(ADDRESS_ID));
+      }
     }
   }
-  computed = {
-
-  }
+  computed = {};
 
   async goToPay(formId) {
     //测试调用接口用，可注释
@@ -132,67 +132,67 @@ export default class ComfireOrder extends wepy.page {
 
     if (json.data.code == 0) {
       //补货直接提交到后台去审核
-      if (this.purchaseType==2) {//补货
+      if (this.purchaseType == 2) {
+        //补货
         tip.success("已提交补货申请!");
         setTimeout(() => {
           tip.loaded();
           wepy.navigateTo({
             url: "/pages/reorder"
-          })
-        }, 2000)
+          });
+        }, 2000);
         return;
       }
       //保存成功了后进行微信支付
       const pay = await api.toPay({
-        query:{
+        query: {
           openId: openId,
           orderNo: json.data.tradeNo
         }
       });
-      if (pay.data.code==0) {
+      if (pay.data.code == 0) {
         //以下是微信支付
         wx.requestPayment({
           appId: pay.data.appId,
           timeStamp: pay.data.timeStamp,
           nonceStr: pay.data.nonceStr,
           package: pay.data.package,
-          signType: 'MD5',
+          signType: "MD5",
           paySign: pay.data.paySign,
-          success: function (res) {
-            console.log('pay', res)
+          success: function(res) {
+            console.log("pay", res);
             setTimeout(() => {
               //支付成功 关闭loadding 跳转到支付成功页面
               tip.loaded();
               wepy.navigateTo({
-                url: "/pages/pay_success?orderNo="+json.data.tradeNo
-              })
-            }, 2000)
+                url: "/pages/pay_success?orderNo=" + json.data.tradeNo
+              });
+            }, 2000);
           },
-          fail: function (res) {
-            tip.alert('支付失败');
+          fail: function(res) {
+            tip.alert("支付失败");
             setTimeout(() => {
               //支付成功 关闭loadding 跳转到支付成功页面
               tip.loaded();
               wepy.navigateTo({
                 url: "/pages/order"
-              })
-            }, 2000)
+              });
+            }, 2000);
           }
-        })
+        });
       } else {
-        tip.alert('支付失败');
+        tip.alert("支付失败");
         setTimeout(() => {
           //支付成功 关闭loadding 跳转到支付成功页面
           tip.loaded();
           wepy.navigateTo({
             url: "/pages/order"
-          })
-        }, 2000)
+          });
+        }, 2000);
       }
     } else {
-      tip.error(json.data.msg)
+      tip.error(json.data.msg);
     }
-
   }
 
   methods = {
@@ -203,28 +203,47 @@ export default class ComfireOrder extends wepy.page {
       this.sellerMessage = e.detail.value;
     },
     async goPay(e) {
+      var that = this;
       var fId = e.detail.formId;
+      await tip.confirm("请确保您的手机号是正确的,稍候您会收到订单短信");
       if (!this.is_exit_address) {
-        await tip.confirm('你未设置收货地址，请设置地址');
+        await tip.confirm("你未设置收货地址，请设置地址");
         wepy.navigateTo({
           url: "/pages/address?type=order"
-        })
+        });
         return false;
       }
-      this.goToPay(fId);
+      //this.goToPay(fId);
+      var shop_cart = wx.getStorageSync(SHOPPING_CART);
+      const json = await api.notice({
+        method: "POST",
+        query: {
+          shop_cart: shop_cart,
+          address: that.address,
+          seller_message: that.sellerMessage,
+          total_price: that.totalPrice
+        }
+      });
+      //const json = {data:{code:0,msg:'订单提交成功'}};
+      if (json.data.code == 0) {
+        //提交成功
+        wx.removeStorageSync(SHOPPING_CART);
+        tip.success(json.data.msg, 1000);
+        wx.switchTab({
+          url: "shop_cart"
+        });
+      } else {
+        tip.error(json.data.error);
+      }
     },
     setAddress() {
       wepy.navigateTo({
         url: "/pages/address?type=order"
-      })
-    },
-    
-  }
-  events = {
-
-  }
+      });
+    }
+  };
+  events = {};
 }
-
 </script>
 <style lang="less">
 .address {
@@ -288,7 +307,7 @@ export default class ComfireOrder extends wepy.page {
       flex: 1;
       margin-left: 20rpx;
     }
-    .total_jf{
+    .total_jf {
       font-size: 32rpx;
     }
   }
@@ -349,7 +368,7 @@ export default class ComfireOrder extends wepy.page {
   bottom: 30rpx;
   display: flex;
   font-size: 24rpx;
-  text-align: center
+  text-align: center;
 }
 
 .goods-info .text-box .buy-num .jian-btn {

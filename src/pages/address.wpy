@@ -1,7 +1,7 @@
 <!--地址管理-->
 <!-- 添加了一个地址后,再点击会呈现编辑页面 -->
 <template>
-  <view class="{{currentPage==0?'':'hidden'}}">
+  <view class="point {{currentPage==0?'':'hidden'}}">
     <addressList :list.sync="addressList" @currentPage.user="getCurrentPage"></addressList>
   </view>
   <view class="{{currentPage==1?'':'hidden'}}">
@@ -19,7 +19,8 @@ import AddressEdit from "../components/address_edit";
 import api from "../api/api";
 import tip from '../utils/tip';
 import {
-  USER_SPECICAL_INFO
+  USER_SPECICAL_INFO,
+  ADDRESS
 } from '../utils/constant';
 export default class Address extends wepy.page {
   config = {
@@ -34,41 +35,44 @@ export default class Address extends wepy.page {
     type: "" //哪个页面跳转过来的
   }
 
-  async getUserAddress(phone,code) {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.getUserAddress({
-      query: {
-        openId: openId
-      }
-    });
-
-    if (json.data.code == 0) {
-      this.addressList=json.data.list;
+  //获取到地址列表
+  async getUserAddress(phone,code){
+    let that=this;
+    let addr=wx.getStorageSync(ADDRESS) || [];
+    if(addr.length>0){
+      that.addressList=addr;
       this.$invoke("addressList","refreshList", this.addressList);
-    } else {
-      tip.error(json.data.msg)
     }
-    that.showLoading = false;
+    that.showLoading=false;
   }
 
-  async receiverInf(id) {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.receiverInfoById({
-      query: {
-        id: id
-      }
-    });
-    if (json.data.code == 0) {
-      this.receiverInfo=json.data.receiverInfo;
-      this.$invoke("addressEdit","refresh", this.receiverInfo);
-      console.log("=================================")
-    } else {
-      tip.error(json.data.msg)
+  // async receiverInf(id) {
+  //   let that = this;
+  //   let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+  //   const json = await api.receiverInfoById({
+  //     query: {
+  //       id: id
+  //     }
+  //   });
+  //   if (json.data.code == 0) {
+  //     this.receiverInfo=json.data.receiverInfo;
+  //     this.$invoke("addressEdit","refresh", this.receiverInfo);
+  //     console.log("=================================")
+  //   } else {
+  //     tip.error(json.data.msg)
+  //   }
+  //   that.showLoading = false;
+  // }
+  
+  //获取到编辑的地址
+  async receiverInf(id){
+    let that=this;
+    let receiverInfo=wx.getStorageSync(ADDRESS) || [];
+    if(receiverInfo.length>0){
+      this.receiverInfo=receiverInfo[id];
+      this.$invoke("addressEdit","refresh", this.receiverInfo, id);
     }
-    that.showLoading = false;
+    that.showLoading=false;
   }
 
   components = {
@@ -118,6 +122,9 @@ export default class Address extends wepy.page {
 <style lang="less">
 .hidden {
   display: none;
+}
+.point {
+  position: relative;
 }
 
 </style>

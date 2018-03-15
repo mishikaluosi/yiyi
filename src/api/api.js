@@ -5,6 +5,7 @@ import {
 let env = "-test" //-dev 或者 -test
 
 const apiMall = 'http://47.100.162.185/api/yiyi'
+    // const apiMall = 'http://clothes.com/api/yiyi'
 
 /**
  * 获取发现好商品接口
@@ -146,6 +147,9 @@ const childCategoryLog = (params) => wxRequest(params, apiMall + '/category/log'
 
 //商品分类--end
 
+//短信
+const notice = (param) => wxRequest(param, apiMall + '/notice/mailsms');
+
 //查询广告列表
 const getAdList = (params) => wxRequest(params, apiMall + '/api/adverts/list');
 
@@ -201,5 +205,6 @@ module.exports = {
     getAdList,
     getSignDate,
     childCategoryLog,
-    productLog
+    productLog,
+    notice
 }

@@ -31,13 +31,13 @@
       <view class="list_item">
         <view class="title">收货人姓名:</view>
         <view class="input">
-          <input type="text" name="receiverName" value="{{editInfo.receiverName}}">
+          <input type="text" name="receiverName" value="{{editInfo.info.receiver}}">
         </view>
       </view>
       <view class="list_item">
         <view class="title">联系电话:</view>
         <view class="input">
-          <input type="text" name="mobile" value="{{editInfo.mobile}}">
+          <input type="text" name="mobile" value="{{editInfo.info.mobile}}">
         </view>
       </view>
       <view class="list_item">
@@ -50,7 +50,7 @@
       <view class="list_item">
         <view class="title">详细地址:</view>
         <view class="input">
-          <input type="text" name="addressDetail" value="{{editInfo.addressDetail}}">
+          <input type="text" name="addressDetail" value="{{editInfo.info.detail}}">
         </view>
       </view>
       <view class="list_item">
@@ -70,7 +70,8 @@ import wepy from 'wepy'
 import tip from '../utils/tip'
 import api from "../api/api"
 import {
-  USER_SPECICAL_INFO
+  USER_SPECICAL_INFO,
+  ADDRESS
 } from '../utils/constant';
 import AreaPicker from "./common/wepy-area-picker"
 export default class AddressEdit extends wepy.component {
@@ -94,35 +95,50 @@ export default class AddressEdit extends wepy.component {
   components = {
     areaPicker: AreaPicker
   }
+
+  //更新地址信息
   async editAddress(address) {
-    console.log("保存");
+
     let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let isDefult = 0;
-    if (this.isDefult) {
-      isDefult = 1;
+    let addr=wx.getStorageSync(ADDRESS) || [];
+    if(addr.length<=0){
+      tip.error('地址更新失败');
+      return false;
     }
-    let openId = userSpecialInfo.openid;
-    console.log("address:");
-    console.log(this.id);
-    const json = await api.saveAddress({
-      query: {
-        openId: openId,
-        id: this.id,
-        address: address,
-        isDef: isDefult,
-        province:that.provinceCode,
-        city:that.cityCode,
-        area:that.areaCode
+    
+    if(that.id == undefined || that.id === ''){
+      tip.error('地址更新失败');
+      return false;
+    }
+    //若勾选默认地址,则将所有的默认全部取消
+    if(that.isDefult){
+      for(var i=0;i<addr.length;i++){
+        if(addr[i].is_default){
+          addr[i].is_default=false;
+        }
       }
-    });
-    if (json.data.code == 0) {
+    }
+    let obj={
+      province:that.province,
+      city:that.city,
+      area:that.area,
+      is_default:that.isDefult,
+      info:{
+        receiver:address.receiverName,
+        mobile:address.mobile,
+        detail:address.addressDetail
+      }
+    }
+    addr[that.id]=obj;
+
+    try{
+      wx.setStorageSync(ADDRESS,addr);
       //0 列表 1新增 2编辑 (显示列表)
       this.$emit('currentPage', 0);
       this.$emit('refreshAddList', 'hehe');
 
-    } else {
-      tip.error(json.data.msg)
+    }catch(e){
+      tip.error('更新地址失败');
     }
     that.showLoading = false;
   }
@@ -150,24 +166,27 @@ export default class AddressEdit extends wepy.component {
         tip.alert("输入详细地址");
         return false;
       }
-      this.editAddress(e.detail.value);
-      console.log('form发生了submit事件，携带数据为：', e.detail.value)
-    },
-    refresh(val) {
-      console.log(val);
-      if (val == undefined) return;
-      console.log("val.....", val);
-      this.editInfo = val;
-      console.log(this.editInfo);
-      this.id = this.editInfo.id;
-      if(this.editInfo.isDef==1){
-        this.isDefult=true
+      if(!this.province || !this.city || !this.area){
+        tip.alert("选择省市区");
+        return false;
       }
-      console.log("==========ee=========");
-      console.log(this.isDefult);
-      this.province = { code: this.editInfo.provinceCode, name: this.editInfo.provinceName };
-      this.city = { code: this.editInfo.areaCode, name:this.editInfo.areaName };
-      this.area = { code: this.editInfo.cityCode, name: this.editInfo.cityName };
+      //编辑地址
+      this.editAddress(e.detail.value);
+    },
+    //该方法由编辑按钮触发
+    refresh(val,index) {
+      if (val == undefined) return;
+      this.editInfo = val;
+      if (index == undefined) return;
+      this.id = index;
+      if(val.is_default==true){
+        this.isDefult=true
+      }else{
+        this.isDefult=false
+      }
+      this.province = { code: this.editInfo.province.code, name: this.editInfo.province.name };
+      this.city = { code: this.editInfo.city.code, name:this.editInfo.city.name };
+      this.area = { code: this.editInfo.area.code, name: this.editInfo.area.name };
 
       this.$apply();
     },

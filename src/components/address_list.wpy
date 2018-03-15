@@ -3,18 +3,18 @@
     <repeat for="{{addressList}}" key="index" index="index" item="item">
       <view class="list_box">
         <swipeDelete :swipeData="item" @delItem.user="handleDelItem">
-          <view class="address_list" @tap="tapSelAddress" data-id="{{item.id}}">
+          <view class="address_list" @tap="tapSelAddress" data-id="{{index}}">
             <view class="title">
               <view class="user_info">
-                <text class="name">{{item.receiverName}}</text>
-                <text class="phone">{{item.mobile}}</text>
+                <text class="name">{{item.info.receiver}}</text>
+                <text class="phone">{{item.info.mobile}}</text>
               </view>
               <view class="active_address">
-                <text class="defult" wx:if="{{item.isDef==1}}"> [默认]</text>
-                {{item.provinceName}} {{item.cityName}} {{item.areaName}} {{item.adressDetail}}
+                <text class="defult" wx:if="{{item.is_default == 1}}"> [默认]</text>
+                {{item.province.name}} {{item.city.name}} {{item.area.name}} {{item.info.detail}}
               </view>
             </view>
-            <view class="arrow"  @tap.stop="edit" data-id="{{item.id}}"><i class="iconfont icon-edit" ></i></view>
+            <view class="arrow"  @tap.stop="edit" data-id="{{index}}"><i class="iconfont icon-edit" ></i></view>
           </view>
         </swipeDelete>
       </view>
@@ -31,16 +31,13 @@ import tip from '../utils/tip'
 import api from "../api/api";
 import {
   USER_SPECICAL_INFO,
-  ADDRESS_ID
+  ADDRESS_ID,
+  ADDRESS
 } from '../utils/constant';
 export default class AddressList extends wepy.component {
   props = {
     addressList: {
-      default: [{
-        style: 0
-      }, {
-        style: 0
-      }],
+      default: [],
       type: Object
     }
   }
@@ -54,22 +51,21 @@ export default class AddressList extends wepy.component {
   }
 
   async delUserAddress(id) {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    const json = await api.delUserAddress({
-      query: {
-        id: id,
-        type:2
-      }
-    });
-
-    if (json.data.code == 0) {
-      console.log("删除成功");
+    let that=this;
+    let addr=wx.getStorageSync(ADDRESS) || [];
+    if(addr.length<=0){
+      tip.error('删除失败');
+      return;
+    }
+    addr.splice(id,1);
+    try{
+      wx.setStorageSync(ADDRESS,addr);
       this.$emit('currentPage', 0);
       this.$emit('refreshAddList', 'hehe');
-    } else {
-      tip.error(json.data.msg)
+    }catch(e){
+      tip.error('删除失败');
     }
+
     that.showLoading = false;
   }
   methods = {
@@ -83,16 +79,12 @@ export default class AddressList extends wepy.component {
       this.$emit('currentPage', 2,id);
     },
     //左滑删除
-    handleDelItem(itemData) {
-      this.delUserAddress(itemData.id);
-      console.log("左滑删除")
-      console.log(itemData.id)
-
+    handleDelItem(itemData,e) {
+      this.delUserAddress(e.source.$index);
     },
 
     refreshList(val){
       if (val==undefined) return;
-      console.log("val.....",val);
       this.addressList = val;
       this.$apply();
     },
@@ -100,13 +92,9 @@ export default class AddressList extends wepy.component {
     setOrgType (type) {
       this.type=type;
     },
-
+    //点击选中地址
     tapSelAddress(e) {
-      if (this.type!="order") {
-        return;
-      }
       var id = e.currentTarget.dataset.id;
-      console.log("id=="+id);
       wepy.setStorageSync(ADDRESS_ID,id);
       wepy.redirectTo({
         url: "/pages/comfire_order?from=selAdd"
@@ -115,7 +103,7 @@ export default class AddressList extends wepy.component {
   }
 
   onLoad() {
-
+    
   }
 }
 
@@ -123,6 +111,11 @@ export default class AddressList extends wepy.component {
 <style lang="less">
 .list_box {
   height: 150rpx;
+}
+
+.address{
+  padding-bottom:120rpx;
+
 }
 
 .address {
@@ -166,6 +159,7 @@ export default class AddressList extends wepy.component {
   position: absolute;
   bottom: 20rpx;
   margin: 0 auto;
+  z-index: 999;
 }
 
 </style>

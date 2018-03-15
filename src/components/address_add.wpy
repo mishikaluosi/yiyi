@@ -23,7 +23,6 @@
   margin-top: 64rpx;
   padding: 0 24rpx;
 }
-
 </style>
 <template>
   <form bindsubmit="formSubmit">
@@ -31,13 +30,13 @@
       <view class="list_item">
         <view class="title">收货人姓名:</view>
         <view class="input">
-          <input type="text" name="receiverName" value="">
+          <input type="text" name="receiverName" value="{{receiverName}}">
         </view>
       </view>
       <view class="list_item">
         <view class="title">联系电话:</view>
         <view class="input">
-          <input type="text" name="mobile">
+          <input type="text" name="mobile" value="{{mobile}}">
         </view>
       </view>
       <view class="list_item">
@@ -50,7 +49,7 @@
       <view class="list_item">
         <view class="title">详细地址:</view>
         <view class="input">
-          <input type="text" name="addressDetail">
+          <input type="text" name="addressDetail" value="{{addressDetail}}">
         </view>
       </view>
       <view class="list_item">
@@ -66,76 +65,88 @@
   </form>
 </template>
 <script>
-import wepy from 'wepy';
-import tip from '../utils/tip';
+import wepy from "wepy";
+import tip from "../utils/tip";
 import api from "../api/api";
-import {
-  USER_SPECICAL_INFO,
-  ADDRESS
-} from '../utils/constant';
-import AreaPicker from "./common/wepy-area-picker"
+import { USER_SPECICAL_INFO, ADDRESS } from "../utils/constant";
+import AreaPicker from "./common/wepy-area-picker";
 export default class AddressAdd extends wepy.component {
   data = {
     isDefault: false,
-    province: '',
-    city: '',
-    area: '',
-    provinceCode: '',
-    cityCode: '',
-    areaCode: ''
-  }
+    province: "",
+    city: "",
+    area: "",
+    provinceCode: "",
+    cityCode: "",
+    areaCode: "",
+    receiverName: null,
+    mobile:null,
+    addressDetail:null
+  };
 
   components = {
     areaPicker: AreaPicker
+  };
+
+  async _init() {
+    this.isDefault = false;
+    this.province = "";
+    this.city = "";
+    this.area = "";
+    this.provinceCode = "";
+    this.cityCode = "";
+    this.areaCode = "";
+    this.receiverName = "";
+    this.mobile = "";
+    this.addressDetail = "";
+    this.$apply();
   }
 
   //新增地址
   async addAddress(address) {
+    let that = this;
+    let addr = wx.getStorageSync(ADDRESS) || []; //获取缓存中的地址信息
 
-    let that=this;
-    let addr=wx.getStorageSync(ADDRESS) || [];   //获取缓存中的地址信息
-    
-    let obj={};
-    obj.province=this.province;
-    obj.city=this.city;
-    obj.area=this.area;
-    obj.is_default=this.isDefault;
-    obj.info={
-      'receiver':address.receiverName,
-      'mobile':address.mobile,
-      'detail':address.addressDetail
+    let obj = {};
+    obj.province = this.province;
+    obj.city = this.city;
+    obj.area = this.area;
+    obj.is_default = this.isDefault;
+    obj.info = {
+      receiver: address.receiverName,
+      mobile: address.mobile,
+      detail: address.addressDetail
     };
-    if(this.isDefault){
-      for(var i=0;i<addr.length;i++){
-        if(addr[i].is_default){
-          addr[i].is_default=false;
+    if (this.isDefault) {
+      for (var i = 0; i < addr.length; i++) {
+        if (addr[i].is_default) {
+          addr[i].is_default = false;
         }
       }
     }
     addr.push(obj);
-    try{
-      wx.setStorageSync(ADDRESS,addr);
+    try {
+      wx.setStorageSync(ADDRESS, addr);
       //0 列表 1新增 2编辑 (显示列表)
-      this.$emit('currentPage', 0);
-      this.$emit('refreshAddList', 'hehe');
-    }catch(e){
-      tip.error('新增地址失败');
+      this.$emit("currentPage", 0);
+      this.$emit("refreshAddList", "hehe");
+      this._init();
+    } catch (e) {
+      tip.error("新增地址失败");
     }
     that.showLoading = false;
-    
   }
   methods = {
     changeCheckBoxState() {
       this.isDefault = !this.isDefault;
     },
     up() {
-      this.$emit('upup', 'hehe'); //主动触发upup方法，'hehe'为向父组件传递的数据
+      this.$emit("upup", "hehe"); //主动触发upup方法，'hehe'为向父组件传递的数据
     },
     formSubmit(e) {
       let receiverName = e.detail.value.receiverName;
       let mobile = e.detail.value.mobile;
       let addressDetail = e.detail.value.addressDetail;
-
       if (receiverName == "") {
         tip.alert("输入收件人姓名");
         return false;
@@ -148,14 +159,15 @@ export default class AddressAdd extends wepy.component {
         tip.alert("输入详细地址");
         return false;
       }
-      if(!this.province || !this.city || !this.area){
+      if (!this.province || !this.city || !this.area) {
         tip.alert("选择省市区");
         return false;
       }
       this.addAddress(e.detail.value);
+
     },
     openAddressPicker() {
-      this.$invoke('areaPicker', 'openAddressPicker');
+      this.$invoke("areaPicker", "openAddressPicker");
     },
     areaPickerArray(province, city, area) {
       this.province = province;
@@ -167,11 +179,8 @@ export default class AddressAdd extends wepy.component {
       this.areaCode = area.code;
       this.$apply();
     }
-  }
+  };
 
-  onLoad() {
-
-  }
+  onLoad() {}
 }
-
 </script>

@@ -4,7 +4,7 @@ import {
 
 let env = "-test" //-dev 或者 -test
 
-const apiMall = 'http://47.100.162.185/api/yiyi'
+const apiMall = 'http://188yy.net/api/yiyi'
     // const apiMall = 'http://clothes.com/api/yiyi'
 
 /**

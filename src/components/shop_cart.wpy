@@ -159,7 +159,7 @@
         this.operating = true;
         var product_id = e.currentTarget.dataset.product_id;
         var index = parseInt(e.currentTarget.dataset.index);
-        var num = this.list[index].num;
+        var num = parseInt(this.list[index].num);
         
         if (num >= 1500) {
           num-=500;
@@ -171,7 +171,7 @@
       jiaBtnTap(e) {
         this.operating = true;
         var index = parseInt(e.currentTarget.dataset.index);
-        var num = this.list[index].num;
+        var num = parseInt(this.list[index].num);
         // 自增
         num+=500;
         this.addGoodNum(num, index);

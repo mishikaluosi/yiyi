@@ -22,6 +22,7 @@
     <view class="spacing"></view>
     <view class="detail-bottom">
       <view class="bottom-box">
+        <view class="sy-bottom" style="background:#FF3E96;color:white;" @tap="redirectCart">前往购物车</view>
         <view class="sy-bottom {{canOrder?'btn_cart':'cart_color'}}" @tap="takeCart">加入购物车</view>
       </view>
     </view>
@@ -270,6 +271,7 @@ export default class goodsDetail extends wepy.page {
       return false;
     }
     tip.success('加入成功');
+    this.doCloseModel();
     return true;
     
   }
@@ -286,6 +288,18 @@ export default class goodsDetail extends wepy.page {
       this.$apply();
     }, 100)
   }
+
+  async doCloseModel(){
+    this.winHeight = "100%";
+    this.animation.height(0).step();
+    this.setData({
+      animationData: this.animation.export()
+    })
+    setTimeout(() => {
+      this.hidden = true;
+      this.$apply();
+    }, 100)
+  }
   
   methods = {
 
@@ -295,6 +309,12 @@ export default class goodsDetail extends wepy.page {
 
     chooseSize(e){
       this.selSize=e.target.dataset.size;
+    },
+
+    redirectCart(e){
+      wx.switchTab({
+        url: '/pages/shop_cart'
+      })
     },
     
     //点击显示高清图片
@@ -317,7 +337,7 @@ export default class goodsDetail extends wepy.page {
       })
     },
     bindOrderNumInput(e) {
-      this.orderNum = e.detail.value;
+      this.orderNum = parseInt(e.detail.value);
     },
     
     takeCart() {
@@ -329,18 +349,11 @@ export default class goodsDetail extends wepy.page {
       //this.doTakeCart();
     },
     closeModel() {
-      this.winHeight = "100%";
-      this.animation.height(0).step();
-      this.setData({
-        animationData: this.animation.export()
-      })
-      setTimeout(() => {
-        this.hidden = true;
-        this.$apply();
-      }, 100)
+      this.doCloseModel()
     },
     confirmTake() { //确定购物车或者直接购买
       this.doTakeCart();
+      
     },
     jiaBtnTap(e) {
       this.orderNum+=500;

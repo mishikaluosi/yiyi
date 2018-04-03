@@ -116,7 +116,7 @@ export default class goodsDetail extends wepy.page {
   }
   onLoad(option) {
     let that = this;
-    this.orderNum = 1000;
+    this.orderNum = 1;
     this.purchasetype = 1;
     this.isFavorite = false;
     this.isValidDate = true;
@@ -229,8 +229,8 @@ export default class goodsDetail extends wepy.page {
       tip.error('请选择尺寸');
       return false;
     }
-    if(that.orderNum<1000){
-      tip.error('数量低于1000');
+    if(that.orderNum<1){
+      tip.error('数量低于1');
       return false;
     }
     var shopping_cart=wx.getStorageSync(SHOPPING_CART) || [];
@@ -356,11 +356,11 @@ export default class goodsDetail extends wepy.page {
       
     },
     jiaBtnTap(e) {
-      this.orderNum+=500;
+      this.orderNum+=1;
     },
     jianBtnTap() {
-      if (this.orderNum >= 1500) {
-        this.orderNum-=500;
+      if (this.orderNum > 1) {
+        this.orderNum-=1;
       }
     },
     onShareAppMessage: function(res) {

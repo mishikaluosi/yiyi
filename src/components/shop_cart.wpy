@@ -23,7 +23,7 @@
               </view>
               <view class="goods-price">¥ {{item.price}}</view>
               <view class="buy-num">
-                <view class="jian-btn {{item.num<=1000? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-product="{{item.product_id}}">-</view>
+                <view class="jian-btn {{item.num<=1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}" data-product="{{item.product_id}}">-</view>
                 <input type="number" value="{{item.num}}" disabled/>
                 <view class="jia-btn" catchtap="jiaBtnTap" data-index="{{index}}" data-product="{{item.product_id}}">+</view>
               </view>
@@ -161,8 +161,8 @@
         var index = parseInt(e.currentTarget.dataset.index);
         var num = parseInt(this.list[index].num);
         
-        if (num >= 1500) {
-          num-=500;
+        if (num > 1) {
+          num-=1;
         } else {
           return;
         }
@@ -173,7 +173,7 @@
         var index = parseInt(e.currentTarget.dataset.index);
         var num = parseInt(this.list[index].num);
         // 自增
-        num+=500;
+        num+=1;
         this.addGoodNum(num, index);
       },
       //提交订单

@@ -5,6 +5,12 @@
 export const USER_SPECICAL_INFO = "userSpecialInfo";
 
 /**
+ * 小程序名称
+ * @type {string}
+ */
+export const PROGRAM_TITLE = '锦绣织';
+
+/**
  * 用户信息
  * @type {String}
  */
@@ -20,6 +26,7 @@ export const SYSTEM_INFO = "systemInfo";
 export const ADDRESS_ID = "addressId";
 
 export const SEL_CLASS_CODE = "selClassCode";
+
 
 /**
  * 购物车中的信息

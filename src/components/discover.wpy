@@ -4,11 +4,10 @@
             <view class="discover_title_doc">发现好商品</view>
         </view>-->
         <view class="discover_list">
-            <navigator class="item" open-type="navigate" wx:for="{{list}}" wx:key="item" url="/pages/home_detail?code={{item.code}}" >
-                <image class="discover_img" src="{{item.logo}}"></image>
-                <view class="info" wx:for="{{item.attrs}}" wx:key="item">
-                    <view>{{item.attrName.attrName}}：</view><view wx:for="{{item.attrValList}}" wx:key="item">{{item.attrVal}} </view>
-                </view>
+            <navigator class="item" open-type="navigate" wx:for="{{list}}" wx:key="item" url="/pages/goods_detail?product_id={{item.product_id}}" >
+                <image class="discover_img" src="{{item.thumb_img}}"></image>
+                <view class="product_name">{{item.name}}</view>
+            </navigator>
         </view>
         </navigator>
     </view>
@@ -86,6 +85,9 @@ export default class Discover extends wepy.component {
         background: #fff;
         padding: 15rpx;
         margin-bottom: 15rpx;
+    }
+    .product_name{
+        text-align:center;
     }
 }
 

@@ -12,6 +12,11 @@ const apiMall = 'https://188yy.net/api/yiyi'
  * @param  {[type]} params [description]
  * @return {[type]}        [description]
  */
+//获取首页推荐商品
+const getHomeDisvocerList = (params) => wxRequest(params, apiMall + '/home/recommend');
+
+
+
 const getDiscoverList = (params) => wxRequest(params, apiMall + '/goods/list?cateidOne=1&cateidTwo=0&price=0&sales=2');
 
 //微信的jscode换取sessionKey
@@ -21,7 +26,7 @@ const user2session = (params) => wxRequest(params, apiMall + "/api/wechat/user2s
 //商品接口---begin
 //首页发现商品接口
 const hostGoodsList = (params) => wxRequest(params, apiMall + '/api/home/hostGoodsList');
-const getHomeDisvocerList = (params) => wxRequest(params, apiMall + '/api/mall/discoverList');
+
 //查询商品列表
 const getGoodsList = (params) => wxRequest(params, apiMall + '/product/list');
 

@@ -22,7 +22,7 @@ import {
 export default class extends wepy.app {
   config = {
     pages: [
-      // 'pages/home',
+       'pages/home',
       // 'pages/home_detail',
       'pages/classify',
       'pages/shop_cart',
@@ -67,6 +67,12 @@ export default class extends wepy.app {
       "backgroundColor": "#ffffff",
       "borderStyle": "black",
       "list": [
+       {
+         "pagePath": "pages/home",
+         "text": "首页",
+         "iconPath": "images/icon_home.png",
+         "selectedIconPath": "images/icon_home_active.png"
+       },
         {
           "pagePath": "pages/classify",
           "text": "分类",
@@ -79,12 +85,7 @@ export default class extends wepy.app {
           "iconPath": "images/icon_shop_cart.png",
           "selectedIconPath": "images/icon_shop_cart_active.png"
         }
-        // {
-        //   "pagePath": "pages/home",
-        //   "text": "首页",
-        //   "iconPath": "images/icon_home.png",
-        //   "selectedIconPath": "images/icon_home_active.png"
-        // }, 
+
         // {
         //   "pagePath": "pages/info",
         //   "text": "我",

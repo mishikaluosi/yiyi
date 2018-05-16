@@ -17,6 +17,18 @@ export const PROGRAM_TITLE = '锦绣织';
 export const USER_INFO = "userInfo";
 
 /**
+ * open_id
+ * @type {string}
+ */
+export const OPEN_ID = 'open_id';
+
+/**
+ * union_id
+ * @type {string}
+ */
+export const UNION_ID = 'union_id';
+
+/**
  * 系统信息
  * @type {String}
  */

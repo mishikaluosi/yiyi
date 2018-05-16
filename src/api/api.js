@@ -15,6 +15,16 @@ const apiMall = 'https://188yy.net/api/yiyi'
 //获取首页推荐商品
 const getHomeDisvocerList = (params) => wxRequest(params, apiMall + '/home/recommend');
 
+/**
+ * 登录接口开始
+ * @param param
+ */
+//根据code换取openid
+const getOpenIDByCode = (params) => wxRequest(params, apiMall + '/login/getopenidbycode');
+
+//解密数据换取unionid
+const decryptData = (params) => wxRequest(params, apiMall + '/login/decryptdata');
+
 
 
 const getDiscoverList = (params) => wxRequest(params, apiMall + '/goods/list?cateidOne=1&cateidTwo=0&price=0&sales=2');
@@ -211,5 +221,7 @@ module.exports = {
     getSignDate,
     childCategoryLog,
     productLog,
-    notice
+    notice,
+    getOpenIDByCode,
+    decryptData
 }

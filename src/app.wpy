@@ -13,11 +13,11 @@ import {
   SYSTEM_INFO,
   ADDRESS_ID,
   SEL_CLASS_CODE,
+  OPEN_ID,
+  UNION_ID
 } from "./utils/constant";
-import {
-  wxJsCode2Session,
-  user2session
-} from './api/api';
+import api from './api/api';
+import tip from './utils/tip'
 
 export default class extends wepy.app {
   config = {
@@ -96,12 +96,12 @@ export default class extends wepy.app {
     }
   }
 
-  globalData = {
-    userInfo: null,
-    appid: 'wx6b121941b200ea50',
-    secret: '36a76b0682bd2c3f1541fd012fac66f5',
-    apiUrl: 'http://47.100.162.185/api/yiyi'
-  }
+//  globalData = {
+//    userInfo: null,
+//    appid: 'wx6b121941b200ea50',
+//    secret: '36a76b0682bd2c3f1541fd012fac66f5',
+//    apiUrl: 'http://47.100.162.185/api/yiyi'
+//  }
 
   constructor() {
     super()
@@ -110,87 +110,81 @@ export default class extends wepy.app {
 
   }
 
-  // async onLaunch() {
-  //   let that = this;
-  //   //用户信息
-  //   let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
+    async onLaunch() {
 
-  //   // 用户普通信息
-  //   let userInfo = wepy.getStorageSync(USER_INFO) || {};
+        let that = this;
+        let user_info = wx.getStorageSync(USER_INFO) || {};     //获取用户信息
+        let open_id = wx.getStorageSync(OPEN_ID) || "";         //open_id
 
-  //   //如果信息过期
-  //   if ((!userSpecialInfo.openid || (userSpecialInfo.expires_in || Date.now()) < (Date.now() + 600)) && (!userInfo.nickName)) {
-  //     let res = await wepy.login();
-  //     if (res.code) {
-  //       let d = that.globalData; //这里存储了appid、secret、token串    
-  //       //存储userInfo 
-  //       let c = await wepy.getUserInfo();
-  //       wepy.setStorageSync(USER_INFO, c.userInfo);
+        if (!user_info || !open_id) {
 
-  //       //存储系统信息 
-  //       let systemInfo = wepy.getSystemInfoSync();
-  //       wepy.setStorageSync(SYSTEM_INFO, systemInfo);
+             wx.login({
+                success: async function(msg){
+                    if(msg.code){
+                        //根据code换取open_id
+                        const json = await api.getOpenIDByCode({
+                            method:'POST',
+                            query:{
+                                code:msg.code
+                            }
+                        });
 
-  //       wxJsCode2Session({
-  //         query: {
-  //           jsCode: res.code,
-  //           nickName: c.userInfo.nickName
-  //         }
-  //       }).then(resp => {
-  //         var rlt = resp.data;
-  //         console.log("wxJsCode2Session..." + JSON.stringify(rlt));
-  //         if (rlt.result) {
-  //           var data = rlt.data;
-  //           if (data.openid) {
-  //             let obj = {};
-  //             obj.openid = data.openid;
-  //             obj.expires_in = Date.now() + data.expires_in;
-  //             //存储openid 
-  //             wepy.setStorageSync(USER_SPECICAL_INFO, obj);
-  //           }
-  //         } else {
-  //           let obj = {};
-  //           obj.openid = "oeuj50KHMqsh5kYZYWQJuwmY5yG0";
-  //           obj.expires_in = "7200";
-  //           //存储openid 
-  //           wepy.setStorageSync(USER_SPECICAL_INFO, obj);
-  //         }
-  //       });
+                        if(json.data.code != 0){
+                            tip.error('登录失败');
+                            return false;
+                        }
+                        let open_id = json.data.data.open_id;
+                        if(!open_id){
+                            tip.error('登录失败');
+                            return false;
+                        }
+                        wx.setStorageSync(OPEN_ID, open_id);    //存储open_id
 
-  //       let url = 'https://api.weixin.qq.com/sns/jscode2session?appid=' + d.appid + '&secret=' + d.secret + '&js_code=' + res.code + '&grant_type=authorization_code';
+                    }else{
+                        tip.error('登录失败');
+                        return false;
+                    }
+                },
+                fail:function(){
+                    tip.error('登录失败');
+                }
 
-  //       /* let b = await wepy.request({
-  //            url: url,
-  //            data: {},
-  //            method: 'POST',
-  //            header: {
-  //                'content-Type': 'application/x-www-form-urlencoded'
-  //            }
-  //        });
-  //        if (b.data.openid) {
-  //            let obj = {};
-  //            obj.openid = b.data.openid;
-  //            obj.expires_in = Date.now() + b.data.expires_in;
+            });
 
-  //            //存储openid 
-  //            wepy.setStorageSync(USER_SPECICAL_INFO, obj);
+            wx.getUserInfo({
+                withCredentials: true,
+                lang: 'zh_CN',
+                success: async function (res) {
 
-  //            //存储userInfo 
-  //            let c = await wepy.getUserInfo();
-  //            wepy.setStorageSync(USER_INFO, c.userInfo);
+                    let open_id = wx.getStorageSync(OPEN_ID) || "";
+                    if(res.encryptedData && res.iv){
+                        const json = await api.decryptData({
+                            method:'POST',
+                            query:{
+                                open_id:open_id,
+                                data:res.encryptedData,
+                                iv:res.iv
+                            }
+                        });
+                        if(json.data.code != 0){
+                            tip.error('登录失败');
+                            return false;
+                        }
+                        wx.setStorageSync(USER_INFO,json.data.data);
 
-  //            //存储系统信息 
-  //            let systemInfo = await wepy.getSystemInfoSync();
-  //            wepy.setStorageSync(SYSTEM_INFO, systemInfo);
-  //            console.log(b, '登陆成功')
-  //        }*/
+                    }else{
+                        tip.error('登录失败');
+                    }
 
-  //     } else {
-  //       console.log('获取用户登录态失败！' + res.errMsg)
-  //     }
 
-  //   }
-  // }
+
+                }
+            })
+
+        }
+
+
+    }
 }
 
 </script>

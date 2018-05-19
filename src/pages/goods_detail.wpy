@@ -18,6 +18,12 @@
         <view class="product-id">商品编号:{{detail.id}}</view>
       </view>
     </view>
+
+    <view class="spacing"></view>
+    <view class="details-msg">
+      <p style="font-size:14px;">如果您想批量采购,可以添加市场经理微信,二维码如下:</p>
+      <image src="/images/identify.jpeg" alt="" />
+    </view>
     
     <view class="spacing"></view>
     <view class="detail-bottom">
@@ -177,6 +183,7 @@ export default class goodsDetail extends wepy.page {
     let time = {};
     if (json.data.code == 0) {
       let data = json.data.data;
+      console.log(data);
       //将张杰的二维码放入最后一张图片
       data.imgs.push({
         'thumb_img':'/images/identify.jpeg',

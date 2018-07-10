@@ -18,6 +18,7 @@ export default class shopCart extends wepy.page {
   }
 
   onLoad() {
+
   }
   onShow() {
     this.$invoke('shopCart', 'getCartListMethod');

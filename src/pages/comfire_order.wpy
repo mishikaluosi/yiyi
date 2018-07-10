@@ -17,7 +17,7 @@
             {{address.info.detail}}
           </view>
         </view>
-        <view class="arrow">&gt;</view>
+        <view class="arrow">></view>
       </view>
     </view>
 
@@ -29,7 +29,7 @@
           <input bindinput="bindKeyInput" placeholder="对本次交易的说明" />
         </view>
       </view>
-      
+
       <view class="spacing"></view>
       <view class="block">
         <view class="left tongji">商品金额</view>
@@ -52,7 +52,8 @@ import {
   USER_SPECICAL_INFO,
   ADDRESS_ID,
   SHOPPING_CART,
-  ADDRESS
+  ADDRESS,
+  OPEN_ID
 } from "../utils/constant";
 export default class ComfireOrder extends wepy.page {
   config = {
@@ -67,7 +68,8 @@ export default class ComfireOrder extends wepy.page {
     address: {},
     //总价
     totalPrice: 0,
-    operating: false
+    operating: false,
+    session_is_expire: true         //sessionKey是否过期
   };
 
   //获取订单总价格
@@ -195,6 +197,85 @@ export default class ComfireOrder extends wepy.page {
     }
   }
 
+  //支付
+  pay(){
+    return new Promise(async (resolve)=>{
+
+      let open_id = wx.getStorageSync(OPEN_ID) || '',
+              address = this.address,
+              shop_cart = wx.getStorageSync(SHOPPING_CART),
+              note = this.sellerMessage;
+      const json = await api.prepay({
+        method:"POST",
+        query:{
+          open_id:open_id,
+          address:address,
+          shop_cart:shop_cart,
+          note:note
+        }
+      });
+
+      let data = json.data;
+
+      if (data.code == 0) {
+        //开始支付
+        let group_id = data.data.group_id;
+
+        wx.requestPayment({
+          timeStamp:data.data.timeStamp,
+          nonceStr:data.data.nonceStr,
+          package:data.data.package,
+          signType:data.data.signType,
+          paySign:data.data.paySign,
+          success:function(msg){
+            //成功调起支付
+            resolve({res:'success',group_id:group_id});
+          },
+          fail:function(msg){
+            //支付失败或者取消支付
+            if (msg.errMsg == 'requestPayment:fail cancel') {
+              resolve({res:'cancel',group_id:group_id});
+            }else{
+              resolve({res:'fail',group_id:group_id});
+            }
+          }
+        });
+      } else {
+        resolve({res:'error'});
+      }
+    });
+
+  }
+
+  //获取openid
+  getOpenID(){
+      return new Promise(function(resolve,reject){
+          wx.login({
+              success: async function(msg){
+
+                  if(msg.code){
+                      //根据code换取open_id
+                      const json = await api.getOpenIDByCode({
+                          method:'POST',
+                          query:{
+                              code:msg.code
+                          }
+                      });
+                      if(json.data.code == 0 && json.data.data.open_id){
+                          resolve(json.data.data.open_id);
+                      }else{
+                          resolve('');
+                      }
+                  }else{
+                      resolve('');
+                  }
+
+              },
+          });
+      });
+
+  }
+
   methods = {
     handleDelItem(itemData) {
       this.deleteGoods(itemData);
@@ -204,37 +285,84 @@ export default class ComfireOrder extends wepy.page {
     },
     async goPay(e) {
       var that = this;
-      var fId = e.detail.formId;
-      await tip.confirm("请确保您的手机号是正确的,稍候您会收到订单短信");
-      if (!this.is_exit_address) {
-        await tip.confirm("你未设置收货地址，请设置地址");
-        wepy.navigateTo({
-          url: "/pages/address?type=order"
-        });
-        return false;
+      //var fId = e.detail.formId;
+
+      let open_id = wx.getStorageSync(OPEN_ID) || '';
+      if (!open_id) {
+          open_id = await that.getOpenID();
+          if(open_id){
+              wx.setStorageSync(OPEN_ID,open_id);
+          }else{
+              await tip.confirm("登录失败!");
+              return false;
+          }
       }
+
+      if (!this.is_exit_address) {
+          await tip.confirm("你未设置收货地址，请设置地址");
+          wepy.navigateTo({
+              url: "/pages/address?type=order"
+          });
+          return false;
+      }
+      if(!that.address.info.mobile){
+          await tip.confirm("请填写收货地址中的手机号");
+          return false;
+      }
+      await tip.confirm(
+              `请确保您的手机号${that.address.info.mobile}是正确的,稍候您会收到订单短信.
+                若未收到短信,请及时与我们的客服进行联系(商品详情页可找到二维码)`
+      );
+
       //this.goToPay(fId);
-      var shop_cart = wx.getStorageSync(SHOPPING_CART);
-      const json = await api.notice({
+      tip.loading("提交订单中");
+      let pay_res = await this.pay();
+      let is_send = false;              //是否发送消息
+      let pay_success = 2;              //订单状态
+      if(pay_res.res == 'success'){
+        is_send = true;
+      }else if(pay_res.res != 'cancel'){
+        //支付失败
+        pay_success = 4;
+      }else{
+        //取消付款
+        pay_success = 3;
+      }
+
+      //改变订单状态
+      await api.changeGroupStatus({
         method: "POST",
         query: {
-          shop_cart: shop_cart,
-          address: that.address,
-          seller_message: that.sellerMessage,
-          total_price: that.totalPrice
+          pay_success:pay_success,
+          group_id:pay_res.group_id,
+          open_id: wx.getStorageSync(OPEN_ID) || ''
         }
       });
-      //const json = {data:{code:0,msg:'订单提交成功'}};
-      if (json.data.code == 0) {
-        //提交成功
-        wx.removeStorageSync(SHOPPING_CART);
-        tip.success(json.data.msg, 1000);
-        wx.switchTab({
-          url: "shop_cart"
-        });
-      } else {
-        tip.error(json.data.error);
+
+      if(pay_success == 4){
+        tip.loaded();
+        tip.error('支付失败');
+        return false;
       }
+
+      //付款成功,后面的发送短信失败等不应该阻碍提交订单
+      if(is_send){
+        await api.notice({
+          method: "POST",
+          query: {
+            open_id:wx.getStorageSync(OPEN_ID) || '',
+            group_id:pay_res.group_id,
+
+          }
+        });
+        tip.loaded();
+        wx.removeStorageSync(SHOPPING_CART);
+        await tip.success('订单提交成功', 1500);
+        wx.switchTab({
+          url:"shop_cart"
+        });
+      }
+      tip.loaded();
     },
     setAddress() {
       wepy.navigateTo({

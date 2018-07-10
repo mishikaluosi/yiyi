@@ -113,10 +113,9 @@ export default class extends wepy.app {
     async onLaunch() {
 
         let that = this;
-        let user_info = wx.getStorageSync(USER_INFO) || {};     //获取用户信息
         let open_id = wx.getStorageSync(OPEN_ID) || "";         //open_id
 
-        if (!user_info || !open_id) {
+        if (!open_id) {
 
              wx.login({
                 success: async function(msg){
@@ -151,35 +150,34 @@ export default class extends wepy.app {
 
             });
 
-            wx.getUserInfo({
-                withCredentials: true,
-                lang: 'zh_CN',
-                success: async function (res) {
-
-                    let open_id = wx.getStorageSync(OPEN_ID) || "";
-                    if(res.encryptedData && res.iv){
-                        const json = await api.decryptData({
-                            method:'POST',
-                            query:{
-                                open_id:open_id,
-                                data:res.encryptedData,
-                                iv:res.iv
-                            }
-                        });
-                        if(json.data.code != 0){
-                            tip.error('登录失败');
-                            return false;
-                        }
-                        wx.setStorageSync(USER_INFO,json.data.data);
-
-                    }else{
-                        tip.error('登录失败');
-                    }
-
-
-
-                }
-            })
+//            wx.getUserInfo({
+//                withCredentials: true,
+//                lang: 'zh_CN',
+//                success: async function (res) {
+//                    let open_id = wx.getStorageSync(OPEN_ID) || "";
+//                    if(res.encryptedData && res.iv){
+//                        const json = await api.decryptData({
+//                            method:'POST',
+//                            query:{
+//                                open_id:open_id,
+//                                data:res.encryptedData,
+//                                iv:res.iv
+//                            }
+//                        });
+//                        if(json.data.code != 0){
+//                            tip.error('登录失败');
+//                            return false;
+//                        }
+//                        wx.setStorageSync(USER_INFO,json.data.data);
+//
+//                    }else{
+//                        tip.error('登录失败');
+//                    }
+//
+//
+//
+//                }
+//            })
 
         }
 

@@ -25,6 +25,11 @@ const getOpenIDByCode = (params) => wxRequest(params, apiMall + '/login/getopeni
 //解密数据换取unionid
 const decryptData = (params) => wxRequest(params, apiMall + '/login/decryptdata');
 
+//预支付接口
+const prepay = (params) => wxRequest(params, apiMall + '/order/prepay');
+
+//改变组订单状态接口
+const changeGroupStatus = (params) => wxRequest(params, apiMall + '/order/change-status');
 
 
 const getDiscoverList = (params) => wxRequest(params, apiMall + '/goods/list?cateidOne=1&cateidTwo=0&price=0&sales=2');
@@ -223,5 +228,7 @@ module.exports = {
     productLog,
     notice,
     getOpenIDByCode,
-    decryptData
+    decryptData,
+    prepay,
+    changeGroupStatus
 }

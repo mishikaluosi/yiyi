@@ -21,7 +21,7 @@
 
     <view class="spacing"></view>
     <view class="details-msg">
-      <p style="font-size:14px;">如果您想批量采购,可以添加市场经理微信,二维码如下:</p>
+      <p style="font-size:14px;">若您在购物过程中遇到任何问题,请添加客服经理微信,二维码如下:</p>
       <image src="/images/identify.jpeg" alt="" />
     </view>
     

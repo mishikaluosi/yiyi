@@ -125,7 +125,9 @@
 
                 }
                 return {
-                    title: PROGRAM_TITLE,
+                    title: `设计师直销平台价优物美《千衣殿》
+                        - 来自无锡小城里的青春`,
+                    imageUrl: 'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/share.jpg',
                     path: '/pages/home',
                     success: function (res) {
                         // 转发成功

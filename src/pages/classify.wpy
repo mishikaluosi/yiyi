@@ -117,7 +117,7 @@ export default class Classify extends wepy.page {
     changeCate(e) {
       let pid = e.currentTarget.dataset.id; //获取当前行中 data-id属性的值
       this.getChildCate(pid);
-      wepy.setStorageSync(SEL_CLASS_CODE, pid);
+      wx.setStorageSync(SEL_CLASS_CODE, pid);
       //设置一级分类的选中状态
       for (var i = 0; i < this.rootcateList.length; i++) {
         var rootCate = this.rootcateList[i];

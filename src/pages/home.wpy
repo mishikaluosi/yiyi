@@ -17,9 +17,9 @@
                 <!--<view class="nav_text">{{item.name}}</view>-->
             <!--</navigator>-->
         <!--</view>-->
-
         <view class="recommend-title">火爆商品</view>
         <discover :list.sync="hottestList"></discover>
+
 
         <!--<view class="recommend-title">最新上架</view>-->
         <!--<discover :list.sync="latestList"></discover>-->
@@ -95,18 +95,16 @@
                 that.hottestList = [...that.hottestList, ...json.data.data.hot];
                 that.bannerList = [...that.bannerList, ...json.data.data.banner];
                 that.latestList = [...that.latestList, ...json.data.data.latest];
-
-                that.$apply();
             } else {
                 tip.error(json.data.msg);
             }
+            that.$apply();
             that.showLoading = false;
         }
 
-        onLoad() {
+        async onLoad() {
             let that = this;
-            that.getDiscoverList();
-
+            await that.getDiscoverList();
         }
 
         computed = {}

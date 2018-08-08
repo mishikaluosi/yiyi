@@ -20,7 +20,10 @@ import api from '../api/api';
 export default class Discover extends wepy.component {
 
     props = {
-        list: []
+        list: {
+            type: Array,
+            default: []
+        }
     }
 
     data = {
@@ -28,10 +31,18 @@ export default class Discover extends wepy.component {
     }
     onLoad() {
         let that = this;
-        console.log(this.list)
+        //this.$emit('hottestList')
     }
     getList() {
         console.log("调用getList方法6666666")
+    }
+    watched = {
+        list : {
+            handler(newVal, oldVal){
+                console.log(newVal)
+            },
+            deep: true
+        }
     }
     computed = {
 

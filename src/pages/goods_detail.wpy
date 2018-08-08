@@ -22,7 +22,7 @@
     <view class="spacing"></view>
     <view class="details-msg">
       <p style="font-size:14px;">若您在购物过程中遇到任何问题,请添加客服经理微信,二维码如下:</p>
-      <image src="/images/identify.jpeg" alt="" />
+      <image src="http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/identify.jpeg" alt="" />
     </view>
     
     <view class="spacing"></view>
@@ -44,7 +44,7 @@
             <view class="price">￥ {{detail.price}}</view>
           </view>
         </view>
-        <scroll-view scroll-y="true" style="height:400rpx">
+        <scroll-view scroll-y="true" style="height:400rpx;position:fixed;">
           <view class="rule_box" wx:if="{{hasColor}}">
               <view class="title">颜色:</view>
               <view class="items">
@@ -186,8 +186,8 @@ export default class goodsDetail extends wepy.page {
       console.log(data);
       //将张杰的二维码放入最后一张图片
       data.imgs.push({
-        'thumb_img':'/images/identify.jpeg',
-        'img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/product/identify.jpeg'
+        'thumb_img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/identify.jpeg',
+        'img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/identify.jpeg'
       });
       that.detail = data;
       if(data.color.length>0){

@@ -36,14 +36,6 @@ export default class Discover extends wepy.component {
     getList() {
         console.log("调用getList方法6666666")
     }
-    watched = {
-        list : {
-            handler(newVal, oldVal){
-                console.log(newVal)
-            },
-            deep: true
-        }
-    }
     computed = {
 
     }

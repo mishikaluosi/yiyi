@@ -1,0 +1,47 @@
+<template>
+    <image
+        src="http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/launch.jpg"
+        style="opacity: {{opacity}}"
+    ></image>
+</template>
+
+<script>
+    import wepy from 'wepy';
+
+    export default class Launch extends wepy.page {
+        config = {
+            navigationBarTitleText: '千衣殿',
+        }
+
+        data = {
+            opacity: 1
+        }
+
+        onLoad() {
+
+            setTimeout(() => {
+                let t = setInterval(()=> {
+                    let opacity = this.opacity
+                    if (opacity <= 0.1) {
+                        clearInterval(t)
+                        this.$switch('/pages/home')
+                    }
+                    this.opacity = opacity - 0.01
+                    this.$apply()
+                }, 20)
+            }, 3000)
+        }
+
+    }
+</script>
+
+<style lang="less">
+    page{
+        width: 100%;
+        height: 100%
+    }
+    image{
+        width: 100%;
+        height: 100%;
+    }
+</style>

@@ -22,6 +22,7 @@ import tip from './utils/tip'
 export default class extends wepy.app {
   config = {
     pages: [
+        'pages/launch',
        'pages/home',
       // 'pages/home_detail',
       'pages/classify',

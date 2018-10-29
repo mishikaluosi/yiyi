@@ -7,6 +7,9 @@
             <navigator class="item" open-type="navigate" wx:for="{{list}}" wx:key="item" url="/pages/goods_detail?product_id={{item.product_id}}" >
                 <image class="discover_img" src="{{item.thumb_img}}"></image>
                 <view class="product_name">{{item.name}}</view>
+                <view class="price">¥{{item.price}}</view>
+                <view class="sales_volume">{{item.sale_volume}}人付款</view>
+                <view class="original_price">¥{{item.original_price}}</view>
             </navigator>
         </view>
         </navigator>
@@ -99,6 +102,24 @@ export default class Discover extends wepy.component {
         margin-left: 250rpx;
         margin-top: 20rpx;
         font-weight: 700;
+    }
+    .price{
+        padding-left:260rpx;
+        color:red;
+        padding-top:30rpx;
+        font-size: 35rpx;
+    }
+    .sales_volume{
+        padding-left: 260rpx;
+        color: #ccc;
+    }
+    .original_price{
+        padding-left:460rpx;
+        float:left;
+        margin-top:-87rpx;
+        color:#ccc;
+        text-decoration: line-through;
+        font-size: 28rpx;
     }
 }
 

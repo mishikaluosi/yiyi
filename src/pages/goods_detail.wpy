@@ -19,15 +19,32 @@
       </view>
     </view>
 
+    <!--<view class="spacing"></view>-->
+    <!--<view class="details-img">-->
+      <!--<text style="font-size:14px;">客服微信：kingdress\n</text>-->
+      <!--<text style="font-size:14px;">退货地址：江苏省无锡市新吴区城南路236-2\n</text>-->
+      <!--<text style="font-size:14px;">电话：18018386151\n</text>-->
+
+      <!--&lt;!&ndash;<image mode="widthFix" src="http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/intro.jpg" alt="" />&ndash;&gt;-->
+    <!--</view>-->
+
     <view class="spacing"></view>
-    <view class="details-msg">
-      <p style="font-size:14px;">若您在购物过程中遇到任何问题,请添加客服经理微信,二维码如下:</p>
-      <image src="http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/identify.jpeg" alt="" />
+    <view class="block">
+      <view class="block_title">商品详情</view>
+    </view>
+    <view class="big_images">
+      <view class="doc">
+        <view class="wxParse-p">
+          <template is="wxParse" data="{{wxParseData:detailInfo.nodes}}">
+          </template>
+        </view>
+      </view>
     </view>
     
     <view class="spacing"></view>
     <view class="detail-bottom">
       <view class="bottom-box">
+        <button class="contact-service" open-type="contact" session-from="weapp">客服</button>
         <view class="sy-bottom" style="background:#FF3E96;color:white;" @tap="redirectCart">前往购物车</view>
         <view class="sy-bottom {{canOrder?'btn_cart':'cart_color'}}" @tap="takeCart">加入购物车</view>
       </view>
@@ -44,7 +61,7 @@
             <view class="price">￥ {{detail.price}}</view>
           </view>
         </view>
-        <scroll-view scroll-y="true" style="height:400rpx;position:fixed;">
+        <scroll-view scroll-y="true" style="height:400rpx;">
           <view class="rule_box" wx:if="{{hasColor}}">
               <view class="title">颜色:</view>
               <view class="items">
@@ -94,6 +111,8 @@ export default class goodsDetail extends wepy.page {
     winHeight: '100%',
     goodsId: 0,     //商品id
     detail: {},
+    detail_info:'',  //商品详情
+    detail_img_urls: [],  //商品详情图片原图
     good_bigimg: [],
     endTime: "",
     hidden: true,
@@ -134,7 +153,8 @@ export default class goodsDetail extends wepy.page {
     //接收上一个页面传过来的参数
     that.goodsId = option.product_id;
     that.getGoodsDetail();
-    that.productLog(that.goodsId);
+    that.getGoodsDetailImg()
+    //that.productLog(that.goodsId);
     
   }
   onShow() {
@@ -166,9 +186,12 @@ export default class goodsDetail extends wepy.page {
     var nowImgUrl = e.target.dataset.src
     var tagFrom = e.target.dataset.from
     if (typeof (tagFrom) != 'undefined' && tagFrom.length > 0) {
+      // 因为当前的链接是oss的缩略图,所以需要去掉queryString
+      nowImgUrl = nowImgUrl.substring(0, nowImgUrl.indexOf('?'))
       wx.previewImage({
         current: nowImgUrl, // 当前显示图片的http链接
-        urls: that.detail[tagFrom].imageUrls
+        //urls: that.detail[tagFrom].imageUrls
+        urls: that.detail_img_urls
       })
     }
   }
@@ -183,12 +206,11 @@ export default class goodsDetail extends wepy.page {
     let time = {};
     if (json.data.code == 0) {
       let data = json.data.data;
-      console.log(data);
       //将张杰的二维码放入最后一张图片
-      data.imgs.push({
-        'thumb_img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/identify.jpeg',
-        'img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/identify.jpeg'
-      });
+//      data.imgs.push({
+//        'thumb_img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/identify.jpeg',
+//        'img':'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/identify.jpeg'
+//      });
       that.detail = data;
       if(data.color.length>0){
         that.hasColor=true;
@@ -207,8 +229,24 @@ export default class goodsDetail extends wepy.page {
       }
     }
     that.$apply();
-    //this.$invoke('timer', 'initTimer', time);
+    // this.$invoke('timer', 'initTimer', time);
   }
+
+  //获取商品详情图片
+  async getGoodsDetailImg(){
+    const json = await api.getGoodsDetailImg({
+      query:{
+        product_id: this.goodsId
+      }
+    })
+    if(json.data.code == 0){
+      this.detail_info = json.data.data.detail_html
+      this.detail_img_urls = json.data.data.detail_imgs
+      WxParse.wxParse('detailInfo', 'html', this.detail_info, this);
+    }
+    this.$apply()
+  }
+
   async addUserBrowser() {
     let that = this;
     let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
@@ -412,8 +450,8 @@ export default class goodsDetail extends wepy.page {
 
 .details-msg {
   border-top: 1px solid #ededed;
-  padding: 30rpx 30rpx;
   background: #fff;
+  padding:5%;
   .details-title {
     overflow: hidden;
     width: 100%;
@@ -553,7 +591,17 @@ export default class goodsDetail extends wepy.page {
       left: 100rpx; // 在客服上面
       opacity: 0;
     }
-  }
+    .contact-service{
+      width:350rpx;
+      border-radius:0;
+      height:89rpx;
+      line-height:89rpx;
+      background:#00aef3;
+      color:#fff;
+      font-size: 40rpx;
+    }
+
+}
   .sy-bottom {
     padding: 15rpx 40rpx;
     width:100%;
@@ -725,7 +773,7 @@ export default class goodsDetail extends wepy.page {
 }
 
 .panle_model {
-  position: absolute;
+  position: fixed;
   height: 0rpx;
   width: 100%;
   z-index: 1002;

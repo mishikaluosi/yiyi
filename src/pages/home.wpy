@@ -5,7 +5,7 @@
                 autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" circular="true">
             <block wx:for="{{bannerList}}" wx:key="key">
                 <swiper-item>
-                    <image src="{{item.thumb_img}}" class="slide-image" @tap="goToDetail({{item.product_id}})"/>
+                    <image src="{{item.thumb_img}}" class="slide-image" @tap="goToDetail({{item.link_url}})"/>
                 </swiper-item>
             </block>
         </swiper>
@@ -17,7 +17,7 @@
                 <!--<view class="nav_text">{{item.name}}</view>-->
             <!--</navigator>-->
         <!--</view>-->
-        <view class="recommend-title">火爆商品</view>
+        <view class="recommend-title">千衣殿精选</view>
         <discover :list.sync="hottestList"></discover>
 
 
@@ -109,12 +109,12 @@
 
         computed = {}
         methods = {
-            goToDetail(product_id) {
-                if(!product_id){
-                    return ;
+            goToDetail(link_url) {
+                if (!link_url) {
+                    return;
                 }
                 wepy.navigateTo({
-                    url: `/pages/goods_detail?product_id=${product_id}`
+                    url: link_url
                 })
             },
             onShareAppMessage: function (res) {
@@ -123,8 +123,7 @@
 
                 }
                 return {
-                    title: `设计师直销平台价优物美《千衣殿》
-                        - 来自无锡小城里的青春`,
+                    title: `千衣殿 - 来自无锡小城里的青春`,
                     imageUrl: 'http://wxyiyi.oss-cn-shanghai.aliyuncs.com/clothes/share/share.jpg',
                     path: '/pages/home',
                     success: function (res) {

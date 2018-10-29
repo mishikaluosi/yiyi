@@ -47,6 +47,8 @@ const getGoodsList = (params) => wxRequest(params, apiMall + '/product/list');
 
 //查询商品详情信息
 const goodsDetail = (params) => wxRequest(params, apiMall + '/product/detail');
+//获取商品图片
+const getGoodsDetailImg = (params) => wxRequest(params, apiMall + '/product/detail-img');
 //商品点击记录
 const productLog = (params) => wxRequest(params, apiMall + '/product/log');
 //商品加入购物车
@@ -230,5 +232,6 @@ module.exports = {
     getOpenIDByCode,
     decryptData,
     prepay,
-    changeGroupStatus
+    changeGroupStatus,
+    getGoodsDetailImg
 }

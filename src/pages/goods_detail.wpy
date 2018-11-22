@@ -824,5 +824,12 @@ export default class goodsDetail extends wepy.page {
   color: #ff4856;
   border: 1px solid #ff4856;
 }
+.doc{
+  .wxParse-p{
+    .wxParse-p{
+      display:flex;
+    }
+  }
+}
 
 </style>
